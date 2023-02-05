@@ -195,8 +195,6 @@ int main(void) {
     glUseProgram(shaderProgram);
     // Привязка VAO
     glBindVertexArray(VAO);
-    // Привязка EBO
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     // Отрисовка примитивов
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     // Отвязка VAO
