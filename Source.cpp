@@ -53,12 +53,30 @@ int main(void) {
   glfwGetFramebufferSize(window, &width, &height);
   glViewport(0, 0, width, height);
 
+  // Цвет очистки экрана
+  float red, green, blue, alpha;
+  red = 49.f / 255.f;
+  green = 0.f;
+  blue = 98.f / 255.f;
+  alpha = 1.f;
+
   // Цикл отрисовки
   while (!glfwWindowShouldClose(window)) {
     // Проверка наличия событий
     glfwPollEvents();
+
+    // Очистка буфера цвета
+    glClearColor(red, green, blue, alpha);
+    glClear(GL_COLOR_BUFFER_BIT);
+
     // Замена цветового буфера
     glfwSwapBuffers(window);
+
+    // Проверка наличия ошибок
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR) {
+      std::cout << "OpenGL error: " << error << std::endl;
+    }
   }
 
   // Освобождение ресурсов
