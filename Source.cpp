@@ -6,6 +6,11 @@
 
 #include <iostream>
 
+// Прототипы функций
+// Колбэк для обработки нажатия клавиш клавиатуры
+void key_callback(GLFWwindow *window, int key, int scanCode, int action,
+                  int mode);
+
 int main(void) {
   // Инициализация GLFW
   glfwInit();
@@ -30,8 +35,13 @@ int main(void) {
     return -1;
   }
 
-  // Инициализация GLEW
+  // Регистрация колбэков
+  // Нажатие клавиш клавиатуры
+  glfwSetKeyCallback(window, key_callback);
+
+  // Установка текущего контекста OpenGL
   glfwMakeContextCurrent(window);
+  // Инициализация GLEW
   glewExperimental = GL_TRUE;
   if (glewInit() != GLEW_OK) {
     std::cout << "Failed to initialize GLEW" << std::endl;
@@ -54,4 +64,15 @@ int main(void) {
   // Освобождение ресурсов
   glfwTerminate();
   return 0;
+}
+
+// Реализация функций
+// Колбэк для обработки нажатия клавиш клавиатуры
+void key_callback(GLFWwindow *window, int key, int scanCode, int action,
+                  int mode) {
+  // Когда пользователь нажимает ESC, мы устанавливаем свойство
+  // WindowShouldClose в true, и приложение после этого закроется
+  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+    glfwSetWindowShouldClose(window, GL_TRUE);
+  }
 }
