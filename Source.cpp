@@ -127,19 +127,31 @@ int main(void) {
   glDeleteShader(vertexShader);
   glDeleteShader(fragmentShader);
 
-  /* Вершинный буфер (VBO) */
-  // Вершины треугольника
-  GLfloat vertices[] = {// Позиции
-                        -0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
-                        0.0f,  0.0f,  0.5f, 0.0f};
+  // Вершины прямоугольника
+  // Позиции вершин
+  GLfloat vertices[] = {
+      // Прямоугольник
+      0.5f,  0.5f,  0.0f, // Верхний правый угол
+      0.5f,  -0.5f, 0.0f, // Нижний правый угол
+      -0.5f, -0.5f, 0.0f, // Нижний левый угол
+      -0.5f, 0.5f,  0.0f  // Верхний левый угол
+  };
+  // Индексы вершин
+  GLuint indices[] = {
+      0, 1, 3, // Первый треугольник
+      1, 2, 3  // Второй треугольник
+  };
 
-  /* VBO & VAO */
+  /* VBO & VAO & EBO */
   // Создание VBO
   GLuint VBO;
   glGenBuffers(1, &VBO);
   // Создание VAO
   GLuint VAO;
   glGenVertexArrays(1, &VAO);
+  // Создание EBO
+  GLuint EBO;
+  glGenBuffers(1, &EBO);
   // Привязка VAO
   glBindVertexArray(VAO);
   // Привязка VBO
@@ -149,9 +161,19 @@ int main(void) {
   // Установка указателей на вершинные атрибуты
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
                         (GLvoid *)0);
+  // Включение вершинных атрибутов
   glEnableVertexAttribArray(0);
+  // Привязка EBO
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  // Копирование массива индексов в буфер
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+               GL_STATIC_DRAW);
+  // Отвязка VBO
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
   // Отвязка VAO
   glBindVertexArray(0);
+  // Отвязка EBO
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
   // Цвет очистки экрана
   GLfloat red, green, blue, alpha;
@@ -173,8 +195,10 @@ int main(void) {
     glUseProgram(shaderProgram);
     // Привязка VAO
     glBindVertexArray(VAO);
-    // Отрисовка треугольника
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    // Привязка EBO
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    // Отрисовка примитивов
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     // Отвязка VAO
     glBindVertexArray(0);
 
@@ -188,6 +212,10 @@ int main(void) {
     }
   }
 
+  // Удаление VAO
+  glDeleteVertexArrays(1, &VAO);
+  // Удаление VBO
+  glDeleteBuffers(1, &VBO);
   // Освобождение ресурсов
   glfwTerminate();
   return 0;
