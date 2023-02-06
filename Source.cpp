@@ -215,10 +215,15 @@ int main(void) {
     }
   }
 
+  /* Очистка ресурсов */
   // Удаление VAO
   glDeleteVertexArrays(1, &VAO);
   // Удаление VBO
   glDeleteBuffers(1, &VBO);
+  // Удаление EBO
+  glDeleteBuffers(1, &EBO);
+  // Удаление шейдерной программы
+  glDeleteProgram(shaderProgram);
   // Освобождение ресурсов
   glfwTerminate();
   return 0;
