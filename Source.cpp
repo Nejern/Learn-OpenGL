@@ -17,14 +17,14 @@ const GLuint WIDTH = 800, HEIGHT = 600;
 // Шейдеры
 // Вершинный шейдер
 const GLchar *vertexShaderSource =
-    "#version 330 core\n"
+    "#version 460 core\n"
     "layout (location = 0) in vec3 position;\n"
     "void main()\n"
     "{\n"
     "gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
     "}\n\0";
 // Фрагментный шейдер
-const GLchar *fragmentShaderSource = "#version 330 core\n"
+const GLchar *fragmentShaderSource = "#version 460 core\n"
                                      "out vec4 color;\n"
                                      "void main()\n"
                                      "{\n"
@@ -38,9 +38,9 @@ int main(void) {
   // Настройка GLFW
   // Задается минимальная требуемая версия OpenGL
   // Мажорная
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   // Минорная
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
   // Установка профайла для которого создается контекст
   // В данном случае используется Core Profile
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
