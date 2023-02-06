@@ -3,6 +3,8 @@
 #include <GL/glew.h>
 // GLFW
 #include <GLFW/glfw3.h>
+// Shader.h
+#include "Shader.h"
 
 #include <cmath>
 #include <iostream>
@@ -14,26 +16,6 @@ void key_callback(GLFWwindow *window, int key, int scanCode, int action,
 
 // Ширина и высота окна
 const GLuint WIDTH = 800, HEIGHT = 600;
-
-// Шейдеры
-// Вершинный шейдер
-const GLchar *vertexShaderSource = "#version 460 core\n"
-                                   "layout (location = 0) in vec3 position;\n"
-                                   "layout (location = 1) in vec3 color;\n"
-                                   "out vec3 ourColor;\n"
-                                   "void main()\n"
-                                   "{\n"
-                                   "gl_Position = vec4(position, 1.0);\n"
-                                   "ourColor = color;\n"
-                                   "}\n\0";
-// Фрагментный шейдер
-const GLchar *fragmentShaderSource = "#version 460 core\n"
-                                     "in vec3 ourColor;\n"
-                                     "out vec4 color;\n"
-                                     "void main()\n"
-                                     "{\n"
-                                     "color = vec4(ourColor, 1.0f);\n"
-                                     "}\n\0";
 
 int main(void) {
   /* GLFW */
@@ -80,56 +62,8 @@ int main(void) {
   glViewport(0, 0, width, height);
 
   /* Шейдеры */
-  /* Вершинный шейдер */
-  // Создание шейдера
-  GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-  // Передача исходного кода шейдера
-  glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-  // Компиляция шейдера
-  glCompileShader(vertexShader);
-  // Проверка на ошибки компиляции
-  GLint success;
-  GLchar infoLog[512];
-  glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-  if (!success) {
-    glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
-              << infoLog << std::endl;
-  }
-
-  /* Фрагментный шейдер */
-  // Создание шейдера
-  GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-  // Передача исходного кода шейдера
-  glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-  // Компиляция шейдера
-  glCompileShader(fragmentShader);
-  // Проверка на ошибки компиляции
-  glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-  if (!success) {
-    glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n"
-              << infoLog << std::endl;
-  }
-
-  /* Шейдерная программа */
-  // Создание шейдерной программы
-  GLuint shaderProgram = glCreateProgram();
-  // Прикрепление шейдеров к шейдерной программе
-  glAttachShader(shaderProgram, vertexShader);
-  glAttachShader(shaderProgram, fragmentShader);
-  // Связывание шейдеров в шейдерную программу
-  glLinkProgram(shaderProgram);
-  // Проверка на ошибки связывания
-  glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-  if (!success) {
-    glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
-              << infoLog << std::endl;
-  }
-  // Удаление шейдеров
-  glDeleteShader(vertexShader);
-  glDeleteShader(fragmentShader);
+  // Создание шейдеров
+  Shader shader("Shaders/vertexShader.glsl", "Shaders/fragmentShader.glsl");
 
   // Вершины треугольника
   // Позиции вершин
@@ -184,7 +118,7 @@ int main(void) {
 
     /* Отрисовка */
     // Использование шейдерной программы
-    glUseProgram(shaderProgram);
+    shader.Use();
     // Прямоугольник
     // Привязка VAO
     glBindVertexArray(VAO);
@@ -209,7 +143,7 @@ int main(void) {
   // Удаление VBO
   glDeleteBuffers(1, &VBO);
   // Удаление шейдерной программы
-  glDeleteProgram(shaderProgram);
+  glDeleteProgram(shader.Program);
   // Освобождение ресурсов
   glfwTerminate();
   return 0;
