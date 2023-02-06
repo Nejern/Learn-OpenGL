@@ -143,6 +143,7 @@ int main(void) {
   };
 
   /* VBO & VAO & EBO */
+
   // Создание VBO
   GLuint VBO;
   glGenBuffers(1, &VBO);
@@ -152,6 +153,7 @@ int main(void) {
   // Создание EBO
   GLuint EBO;
   glGenBuffers(1, &EBO);
+
   // Привязка VAO
   glBindVertexArray(VAO);
   // Привязка VBO
@@ -163,11 +165,13 @@ int main(void) {
                         (GLvoid *)0);
   // Включение вершинных атрибутов
   glEnableVertexAttribArray(0);
+
   // Привязка EBO
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   // Копирование массива индексов в буфер
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
                GL_STATIC_DRAW);
+
   // Отвязка VBO
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   // Отвязка VAO
@@ -181,6 +185,7 @@ int main(void) {
   green = 0.f;
   blue = 98.f / 255.f;
   alpha = 1.f;
+  glClearColor(red, green, blue, alpha);
 
   /* Цикл отрисовки */
   while (!glfwWindowShouldClose(window)) {
@@ -188,9 +193,9 @@ int main(void) {
     glfwPollEvents();
 
     // Очистка буфера цвета
-    glClearColor(red, green, blue, alpha);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    // Отрисовка прямоугольника
     // Использование шейдерной программы
     glUseProgram(shaderProgram);
     // Привязка VAO
