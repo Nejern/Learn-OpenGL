@@ -4,6 +4,7 @@
 // GLFW
 #include <GLFW/glfw3.h>
 
+#include <cmath>
 #include <iostream>
 
 // Прототипы функций
@@ -26,9 +27,10 @@ const GLchar *vertexShaderSource =
 // Фрагментный шейдер
 const GLchar *fragmentShaderSource = "#version 460 core\n"
                                      "out vec4 color;\n"
+                                     "uniform vec4 ourColor;\n"
                                      "void main()\n"
                                      "{\n"
-                                     "color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+                                     "color = ourColor;\n"
                                      "}\n\0";
 
 int main(void) {
@@ -195,9 +197,14 @@ int main(void) {
     // Очистка буфера цвета
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Отрисовка прямоугольника
+    /* Отрисовка */
+    // Прямоугольник
+    // Изменение цвета в зависимости от времени
+    GLfloat greenValue = (cos(glfwGetTime()) / 2) + 0.5;
+    GLint vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
     // Использование шейдерной программы
     glUseProgram(shaderProgram);
+    glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
     // Привязка VAO
     glBindVertexArray(VAO);
     // Отрисовка примитивов
