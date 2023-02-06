@@ -198,12 +198,12 @@ int main(void) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     /* Отрисовка */
+    // Использование шейдерной программы
+    glUseProgram(shaderProgram);
     // Прямоугольник
     // Изменение цвета в зависимости от времени
     GLfloat greenValue = (cos(glfwGetTime()) / 2) + 0.5;
     GLint vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-    // Использование шейдерной программы
-    glUseProgram(shaderProgram);
     glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
     // Привязка VAO
     glBindVertexArray(VAO);
