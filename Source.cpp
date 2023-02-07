@@ -1,3 +1,4 @@
+/* OpenGL 4.6.0 Application */
 // GLEW
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -75,40 +76,32 @@ int main(void) {
   };
 
   /* VBO & VAO */
-
-  // Создание VBO
-  GLuint VBO;
-  glGenBuffers(1, &VBO);
-  // Создание VAO
-  GLuint VAO;
-  glGenVertexArrays(1, &VAO);
-
-  // Привязка VAO
-  glBindVertexArray(VAO);
-  // Привязка VBO
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  // Копирование массива вершин в буфер
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+  // Объявление идентификаторов VBO и VAO
+  GLuint VBO, VAO;
+  // Генерация буферов
+  glCreateBuffers(1, &VBO);
+  glCreateVertexArrays(1, &VAO);
+  // Привязка VBO к VAO
+  glVertexArrayVertexBuffer(VAO, 0, VBO, 0, 6 * sizeof(GLfloat));
+  // Включение атрибутов вершин
+  glEnableVertexArrayAttrib(VAO, 0); // Позиция
+  glEnableVertexArrayAttrib(VAO, 1); // Цвет
   // Указание атрибутов вершин
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat),
-                        (GLvoid *)0);
-  // Указание атрибутов цвета
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat),
-                        (GLvoid *)(3 * sizeof(GLfloat)));
-  // Включение вершинных атрибутов
-  glEnableVertexAttribArray(0);
-  // Включение атрибутов цвета
-  glEnableVertexAttribArray(1);
+  glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE, 0); // Позиция
+  glVertexArrayAttribFormat(VAO, 1, 3, GL_FLOAT, GL_FALSE,
+                            3 * sizeof(GLfloat)); // Цвет
+  // Привязка атрибутов вершин
+  glVertexArrayAttribBinding(VAO, 0, 0); // Позиция
+  glVertexArrayAttribBinding(VAO, 1, 0); // Цвет
+  // Заполнение буфера вершин
+  glNamedBufferData(VBO, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-  // Отвязка VBO
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  // Отвязка VAO
-  glBindVertexArray(0);
-
-  // Цвет очистки экрана
-  glClearColor(29.f/255, 32.f/255, 33.f/255, 1.f);
 
   /* Цикл отрисовки */
+
+  // Цвет очистки экрана
+  glClearColor(29.f / 255, 32.f / 255, 33.f / 255, 1.f);
+
   while (!glfwWindowShouldClose(window)) {
     // Проверка наличия событий
     glfwPollEvents();
