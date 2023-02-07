@@ -96,7 +96,6 @@ int main(void) {
   // Заполнение буфера вершин
   glNamedBufferData(VBO, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-
   /* Цикл отрисовки */
 
   // Цвет очистки экрана
@@ -143,11 +142,21 @@ int main(void) {
 
 // Реализация функций
 // Колбэк для обработки нажатия клавиш клавиатуры
+int space_flag = 0;
 void key_callback(GLFWwindow *window, int key, int scanCode, int action,
                   int mode) {
   // Когда пользователь нажимает ESC, мы устанавливаем свойство
   // WindowShouldClose в true, и приложение после этого закроется
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, GL_TRUE);
+  }
+  if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+    if (space_flag == 0) {
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+      space_flag = 1;
+    } else {
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      space_flag = 0;
+    }
   }
 }
