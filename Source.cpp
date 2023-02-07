@@ -18,6 +18,21 @@ void key_callback(GLFWwindow *window, int key, int scanCode, int action,
 // Ширина и высота окна
 const GLuint WIDTH = 800, HEIGHT = 600;
 
+// Структура для хранения координат вершин
+struct Vertex {
+  GLfloat position[3];
+  GLfloat color[3];
+
+  Vertex(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b) {
+    position[0] = x;
+    position[1] = y;
+    position[2] = z;
+    color[0] = r;
+    color[1] = g;
+    color[2] = b;
+  }
+};
+
 int main(void) {
   /* GLFW */
   // Инициализация GLFW
@@ -66,13 +81,11 @@ int main(void) {
   // Создание шейдеров
   Shader shader("Shaders/vertexShader.glsl", "Shaders/fragmentShader.glsl");
 
-  // Вершины треугольника
-  // Позиции вершин
-  GLfloat vertices[] = {
-      // Позиция          // Цвет
-      0.0f,  0.5f,  0.0f, 1.0f, 0.0f, 0.0f, // Верхний угол
-      0.5f,  -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // Нижний правый угол
-      -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, // Нижний левый угол
+  // Треугольник
+  Vertex vertices[] = {
+      Vertex(0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f),
+      Vertex(0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f),
+      Vertex(-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f),
   };
 
   /* VBO & VAO */
@@ -82,14 +95,17 @@ int main(void) {
   glCreateBuffers(1, &VBO);
   glCreateVertexArrays(1, &VAO);
   // Привязка VBO к VAO
-  glVertexArrayVertexBuffer(VAO, 0, VBO, 0, 6 * sizeof(GLfloat));
+  glVertexArrayVertexBuffer(VAO, 0, VBO, 0, sizeof(Vertex));
   // Включение атрибутов вершин
   glEnableVertexArrayAttrib(VAO, 0); // Позиция
   glEnableVertexArrayAttrib(VAO, 1); // Цвет
   // Указание атрибутов вершин
-  glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE, 0); // Позиция
+  // Позиция
+  glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE,
+                            offsetof(Vertex, position));
+  // Цвет
   glVertexArrayAttribFormat(VAO, 1, 3, GL_FLOAT, GL_FALSE,
-                            3 * sizeof(GLfloat)); // Цвет
+                            offsetof(Vertex, color));
   // Привязка атрибутов вершин
   glVertexArrayAttribBinding(VAO, 0, 0); // Позиция
   glVertexArrayAttribBinding(VAO, 1, 0); // Цвет
