@@ -99,27 +99,27 @@ int main(void) {
   /* DSA */
 
   // Объявление VAO, VBO, EBO
-  GLuint VAO, VBO, EBO;
+  GLuint VAO[1], VBO[1], EBO[1];
 
   // Генерация буферов
-  glCreateVertexArrays(1, &VAO);
-  glCreateBuffers(1, &VBO);
-  glCreateBuffers(1, &EBO);
+  glCreateVertexArrays(sizeof(VAO) / sizeof(VAO[0]), VAO);
+  glCreateBuffers(sizeof(VBO) / sizeof(VBO[0]), VBO);
+  glCreateBuffers(sizeof(EBO) / sizeof(EBO[0]), EBO);
 
   // Заполнение буфера вершин данными
-  glNamedBufferData(VBO, sizeof(vertices), vertices, GL_STATIC_DRAW);
+  glNamedBufferData(VBO[0], sizeof(vertices), vertices, GL_STATIC_DRAW);
 
   // Заполнение буфера индексов данными
-  glNamedBufferData(EBO, sizeof(indices), indices, GL_STATIC_DRAW);
+  glNamedBufferData(EBO[0], sizeof(indices), indices, GL_STATIC_DRAW);
 
   // Настройка VAO
   // Атрибут позиции - 0
   // Включение атрибута вершин
-  glEnableVertexArrayAttrib(VAO, 0);
+  glEnableVertexArrayAttrib(VAO[0], 0);
   // Установка связи атрибута 0 с буфером 0 указанного VAO
-  glVertexArrayAttribBinding(VAO, 0, 0);
+  glVertexArrayAttribBinding(VAO[0], 0, 0);
 
-  glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE,
+  glVertexArrayAttribFormat(VAO[0], 0, 3, GL_FLOAT, GL_FALSE,
                             offsetof(Vertex, position));
   // Указание для конкретного VAO, что атрибут 0 имеет 3 штуки значений,
   // представленных в виде GL_FLOAT, нормализовывать эти значения не надо
@@ -127,11 +127,11 @@ int main(void) {
 
   // Атрибут цвета - 1
   // Включение атрибута вершин
-  glEnableVertexArrayAttrib(VAO, 1);
+  glEnableVertexArrayAttrib(VAO[0], 1);
   // Установка связи атрибута 1 с буфером 1 указанного VAO
-  glVertexArrayAttribBinding(VAO, 1, 1);
+  glVertexArrayAttribBinding(VAO[0], 1, 1);
 
-  glVertexArrayAttribFormat(VAO, 1, 3, GL_FLOAT, GL_FALSE,
+  glVertexArrayAttribFormat(VAO[0], 1, 3, GL_FLOAT, GL_FALSE,
                             offsetof(Vertex, color));
   // Указание для конкретного VAO, что атрибут 1 имеет 3 штуки значений,
   // представленных в виде GL_FLOAT, нормализовывать эти значения не надо
@@ -139,18 +139,18 @@ int main(void) {
 
   // Установка буфера вершин
   // Позиция вершин
-  glVertexArrayVertexBuffer(VAO, 0, VBO, 0, sizeof(Vertex));
+  glVertexArrayVertexBuffer(VAO[0], 0, VBO[0], 0, sizeof(Vertex));
   // Указание для конкретного VAO, что точка привязки 0 имеет буфер вершин VBO,
   // смещение 0 и размер sizeof(Vertex)
 
   // Цвет вершин
-  glVertexArrayVertexBuffer(VAO, 1, VBO, 0, sizeof(Vertex));
+  glVertexArrayVertexBuffer(VAO[0], 1, VBO[0], 0, sizeof(Vertex));
   // Указание для конкретного VAO, что точка привязки 1 имеет буфер вершин VBO,
   // смещение 0 и размер sizeof(Vertex)
 
   // Установка буфера индексов
   // Указание для конкретного VAO, что буфер индексов EBO
-  glVertexArrayElementBuffer(VAO, EBO);
+  glVertexArrayElementBuffer(VAO[0], EBO[0]);
 
   /* Цикл отрисовки */
   // Цвет очистки экрана
@@ -167,9 +167,10 @@ int main(void) {
     // Использование шейдерной программы
     shader.Use();
     // Привязка VAO
-    glBindVertexArray(VAO);
+    glBindVertexArray(VAO[0]);
     // Отрисовка примитивов
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]),
+                   GL_UNSIGNED_INT, 0);
     // Отвязка VAO
     glBindVertexArray(0);
 
@@ -185,9 +186,11 @@ int main(void) {
 
   /* Очистка ресурсов */
   // Удаление VAO
-  glDeleteVertexArrays(1, &VAO);
+  glDeleteVertexArrays(sizeof(VAO) / sizeof(VAO[0]), VAO);
   // Удаление VBO
-  glDeleteBuffers(1, &VBO);
+  glDeleteBuffers(sizeof(VBO) / sizeof(VBO[0]), VBO);
+  // Удаление EBO
+  glDeleteBuffers(sizeof(EBO) / sizeof(EBO[0]), EBO);
   // Удаление шейдерной программы
   glDeleteProgram(shader.Program);
   // Освобождение ресурсов
