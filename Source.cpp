@@ -120,7 +120,7 @@ int main(void) {
   // Загрузка изображения
   int widthImg, heightImg;
   unsigned char *image = SOIL_load_image("Textures/container.jpg", &widthImg,
-                                         &heightImg, 0, SOIL_LOAD_RGBA);
+                                         &heightImg, 0, SOIL_LOAD_RGB);
 
   // Проверка на ошибки
   if (image == nullptr) {
@@ -129,11 +129,16 @@ int main(void) {
   }
 
   // Создание хранилища для текстуры
-  glTextureStorage2D(texture, 1, GL_RGBA8, widthImg, heightImg);
+  glTextureStorage2D(texture, 1, GL_RGB8, widthImg, heightImg);
+  // Текстура texture с количеством уровней 1, размерный формат GL_RGB8, ширина
+  // widthImg, высота heightImg
 
   // Загрузка изображения в хранилище
-  glTextureSubImage2D(texture, 0, 0, 0, widthImg, heightImg, GL_RGBA,
+  glTextureSubImage2D(texture, 0, 0, 0, widthImg, heightImg, GL_RGB,
                       GL_UNSIGNED_BYTE, image);
+  // Текстура texture, уровень детализации 0, смещение по оси X 0, смещение по
+  // оси Y 0, ширина widthImg, высота heightImg, формат GL_RGB, тип данных
+  // GL_UNSIGNED_BYTE, данные image
 
   // Освобождение памяти
   SOIL_free_image_data(image);
