@@ -4,6 +4,8 @@
 #include <GL/glew.h>
 // GLFW
 #include <GLFW/glfw3.h>
+// SOIL
+#include <SOIL/SOIL.h>
 // Shader.h
 #include "Shader.h"
 
@@ -37,6 +39,7 @@ struct Vertex {
 };
 
 int main(void) {
+  /* -----------------------[Инициализация]----------------------- */
   /* GLFW */
   // Инициализация GLFW
   glfwInit();
@@ -80,11 +83,10 @@ int main(void) {
   glfwGetFramebufferSize(window, &width, &height);
   glViewport(0, 0, width, height);
 
-  /* Шейдеры */
+  /* -----------------------[Шейдеры]----------------------- */
   // Создание шейдеров
   Shader shader("Shaders/vertexShader.glsl", "Shaders/fragmentShader.glsl");
 
-  // Треугольник
   Vertex vertices[] = {
       Vertex(0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f),
       Vertex(0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f),
@@ -96,8 +98,50 @@ int main(void) {
       0, 1, 2 // Первый треугольник
   };
 
-  /* DSA */
+  /* ----------------------[Текстуры]---------------------- */
+  // Загрузка текстуры
+  GLuint texture;
+  glCreateTextures(GL_TEXTURE_2D, 1, &texture);
 
+  // Установка параметров текстуры
+
+  // Повторение текстуры по оси S
+  glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  // Повторение текстуры по оси T
+  glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  // Фильтрация текстуры
+
+  // Минификация
+  glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  // Магнификация
+  glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  // Загрузка изображения
+  int widthImg, heightImg;
+  unsigned char *image = SOIL_load_image("Textures/container.jpg", &widthImg,
+                                         &heightImg, 0, SOIL_LOAD_RGBA);
+
+  // Проверка на ошибки
+  if (image == nullptr) {
+    std::cout << "Failed to load image" << std::endl;
+    return -1;
+  }
+
+  // Создание хранилища для текстуры
+  glTextureStorage2D(texture, 1, GL_RGBA8, widthImg, heightImg);
+
+  // Загрузка изображения в хранилище
+  glTextureSubImage2D(texture, 0, 0, 0, widthImg, heightImg, GL_RGBA,
+                      GL_UNSIGNED_BYTE, image);
+
+  // Освобождение памяти
+  SOIL_free_image_data(image);
+
+  // Создание мипмапа
+  glGenerateTextureMipmap(texture);
+
+  /* -----------------------[Буферы]----------------------- */
   // Объявление VAO, VBO, EBO
   GLuint VAO[1], VBO[1], EBO[1];
 
@@ -221,18 +265,22 @@ void key_callback(GLFWwindow *window, int key, int scanCode, int action,
 
 // Текущее состояне
 void context_status() {
+  int status;
   // VAO
   std::cout << "-----------" << std::endl;
-  int vao_status;
-  glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &vao_status);
-  std::cout << "Current VAO: " << vao_status << std::endl;
+  glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &status);
+  std::cout << "Current VAO: " << status << std::endl;
   // VBO
-  int vbo_status;
-  glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &vbo_status);
-  std::cout << "Current VBO: " << vbo_status << std::endl;
+  glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &status);
+  std::cout << "Current VBO: " << status << std::endl;
   // EBO
-  int ebo_status;
-  glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &ebo_status);
-  std::cout << "Current EBO: " << ebo_status << std::endl;
+  glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &status);
+  std::cout << "Current EBO: " << status << std::endl;
+  // Shader
+  glGetIntegerv(GL_CURRENT_PROGRAM, &status);
+  std::cout << "Current Shader: " << status << std::endl;
+  // Texture
+  glGetIntegerv(GL_TEXTURE_BINDING_2D, &status);
+  std::cout << "Current Texture: " << status << std::endl;
   std::cout << "-----------" << std::endl;
 }
