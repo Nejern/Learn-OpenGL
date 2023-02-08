@@ -15,6 +15,9 @@
 void key_callback(GLFWwindow *window, int key, int scanCode, int action,
                   int mode);
 
+// Текущее состояне
+void context_status();
+
 // Ширина и высота окна
 const GLuint WIDTH = 800, HEIGHT = 600;
 
@@ -95,66 +98,63 @@ int main(void) {
       2,
   };
 
-  /* Non DSA */
+  /* DSA */
 
   // Объявление VAO, VBO, EBO
   GLuint VAO, VBO, EBO;
-  // Генерация имен
-  glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &VBO);
-  glGenBuffers(1, &EBO);
 
-  // +++++++++++++++++++++++++
-  //       Контекст VAO
-  // +++++++++++++++++++++++++
-  glBindVertexArray(VAO);
-
-  // +++++++++++++++++++++++++
-  //       Контекст VBO
-  // +++++++++++++++++++++++++
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  // Генерация буферов
+  glCreateVertexArrays(1, &VAO);
+  glCreateBuffers(1, &VBO);
+  glCreateBuffers(1, &EBO);
 
   // Заполнение буфера вершин данными
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  // +++++++++++++++++++++++++
-  //       Контекст EBO
-  // +++++++++++++++++++++++++
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glNamedBufferData(VBO, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
   // Заполнение буфера индексов данными
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+  glNamedBufferData(EBO, sizeof(indices), indices, GL_STATIC_DRAW);
 
   // Настройка VAO
   // Атрибут позиции - 0
-  glEnableVertexAttribArray(0); // Включение атрибута вершин
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, position));
-  // Указание, что атрибут 0 имеет 3 штуки значений, представленных в виде
-  // GL_FLOAT, нормализовывать эти значения не надо (GL_FALSE), шаг между
-  // значениями sizeof(Vertex), значения начинаются с 0
+  // Включение атрибута вершин
+  glEnableVertexArrayAttrib(VAO, 0);
+  // Установка связи атрибута 0 с буфером 0 указанного VAO
+  glVertexArrayAttribBinding(VAO, 0, 0);
+
+  glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE,
+                            offsetof(Vertex, position));
+  // Указание для конкретного VAO, что атрибут 0 имеет 3 штуки значений,
+  // представленных в виде GL_FLOAT, нормализовывать эти значения не надо
+  // (GL_FALSE), значения начинаются с offsetof(Vertex, position)
 
   // Атрибут цвета - 1
-  glEnableVertexAttribArray(1); // Включение атрибут вершин
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                        (void *)offsetof(Vertex, color));
+  // Включение атрибута вершин
+  glEnableVertexArrayAttrib(VAO, 1);
+  // Установка связи атрибута 1 с буфером 1 указанного VAO
+  glVertexArrayAttribBinding(VAO, 1, 1);
 
-  // -------------------------
-  //       Контекст VBO
-  // -------------------------
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glVertexArrayAttribFormat(VAO, 1, 3, GL_FLOAT, GL_FALSE,
+                            offsetof(Vertex, color));
+  // Указание для конкретного VAO, что атрибут 1 имеет 3 штуки значений,
+  // представленных в виде GL_FLOAT, нормализовывать эти значения не надо
+  // (GL_FALSE), значения начинаются с offsetof(Vertex, color)
 
-  // -------------------------
-  //       Контекст VAO
-  // -------------------------
-  glBindVertexArray(0);
+  // Установка буфера вершин
+  // Позиция вершин
+  glVertexArrayVertexBuffer(VAO, 0, VBO, 0, sizeof(Vertex));
+  // Указание для конкретного VAO, что точка привязки 0 имеет буфер вершин VBO,
+  // смещение 0 и размер sizeof(Vertex)
 
-  // -------------------------
-  //       Контекст EBO
-  // -------------------------
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  // Цвет вершин
+  glVertexArrayVertexBuffer(VAO, 1, VBO, 0, sizeof(Vertex));
+  // Указание для конкретного VAO, что точка привязки 1 имеет буфер вершин VBO,
+  // смещение 0 и размер sizeof(Vertex)
+
+  // Установка буфера индексов
+  // Указание для конкретного VAO, что буфер индексов EBO
+  glVertexArrayElementBuffer(VAO, EBO);
 
   /* Цикл отрисовки */
-
   // Цвет очистки экрана
   glClearColor(29.f / 255, 32.f / 255, 33.f / 255, 1.f);
 
@@ -197,7 +197,7 @@ int main(void) {
   return 0;
 }
 
-// Реализация функций
+/* Реализация функций */
 // Колбэк для обработки нажатия клавиш клавиатуры
 int space_flag = 0;
 void key_callback(GLFWwindow *window, int key, int scanCode, int action,
@@ -216,4 +216,22 @@ void key_callback(GLFWwindow *window, int key, int scanCode, int action,
       space_flag = 0;
     }
   }
+}
+
+// Текущее состояне
+void context_status() {
+  // VAO
+  std::cout << "-----------" << std::endl;
+  int vao_status;
+  glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &vao_status);
+  std::cout << "Current VAO: " << vao_status << std::endl;
+  // VBO
+  int vbo_status;
+  glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &vbo_status);
+  std::cout << "Current VBO: " << vbo_status << std::endl;
+  // EBO
+  int ebo_status;
+  glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &ebo_status);
+  std::cout << "Current EBO: " << ebo_status << std::endl;
+  std::cout << "-----------" << std::endl;
 }
