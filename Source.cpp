@@ -88,29 +88,70 @@ int main(void) {
       Vertex(-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f),
   };
 
-  /* VBO & VAO */
-  // Объявление идентификаторов VBO и VAO
-  GLuint VBO, VAO;
-  // Генерация буферов
-  glCreateBuffers(1, &VBO);
-  glCreateVertexArrays(1, &VAO);
-  // Привязка VBO к VAO
-  glVertexArrayVertexBuffer(VAO, 0, VBO, 0, sizeof(Vertex));
-  // Включение атрибутов вершин
-  glEnableVertexArrayAttrib(VAO, 0); // Позиция
-  glEnableVertexArrayAttrib(VAO, 1); // Цвет
-  // Указание атрибутов вершин
-  // Позиция
-  glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE,
-                            offsetof(Vertex, position));
-  // Цвет
-  glVertexArrayAttribFormat(VAO, 1, 3, GL_FLOAT, GL_FALSE,
-                            offsetof(Vertex, color));
-  // Привязка атрибутов вершин
-  glVertexArrayAttribBinding(VAO, 0, 0); // Позиция
-  glVertexArrayAttribBinding(VAO, 1, 0); // Цвет
-  // Заполнение буфера вершин
-  glNamedBufferData(VBO, sizeof(vertices), vertices, GL_STATIC_DRAW);
+  // Индексы вершин
+  GLuint indices[] = {
+      0,
+      1,
+      2,
+  };
+
+  /* Non DSA */
+
+  // Объявление VAO, VBO, EBO
+  GLuint VAO, VBO, EBO;
+  // Генерация имен
+  glGenVertexArrays(1, &VAO);
+  glGenBuffers(1, &VBO);
+  glGenBuffers(1, &EBO);
+
+  // +++++++++++++++++++++++++
+  //       Контекст VAO
+  // +++++++++++++++++++++++++
+  glBindVertexArray(VAO);
+
+  // +++++++++++++++++++++++++
+  //       Контекст VBO
+  // +++++++++++++++++++++++++
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+  // Заполнение буфера вершин данными
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  // +++++++++++++++++++++++++
+  //       Контекст EBO
+  // +++++++++++++++++++++++++
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+  // Заполнение буфера индексов данными
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+  // Настройка VAO
+  // Атрибут позиции - 0
+  glEnableVertexAttribArray(0); // Включение атрибута вершин
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, position));
+  // Указание, что атрибут 0 имеет 3 штуки значений, представленных в виде
+  // GL_FLOAT, нормализовывать эти значения не надо (GL_FALSE), шаг между
+  // значениями sizeof(Vertex), значения начинаются с 0
+
+  // Атрибут цвета - 1
+  glEnableVertexAttribArray(1); // Включение атрибут вершин
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                        (void *)offsetof(Vertex, color));
+
+  // -------------------------
+  //       Контекст VBO
+  // -------------------------
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+  // -------------------------
+  //       Контекст VAO
+  // -------------------------
+  glBindVertexArray(0);
+
+  // -------------------------
+  //       Контекст EBO
+  // -------------------------
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
   /* Цикл отрисовки */
 
