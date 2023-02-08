@@ -4,8 +4,9 @@
 #include <GL/glew.h>
 // GLFW
 #include <GLFW/glfw3.h>
-// SOIL
-#include <SOIL/SOIL.h>
+// STB
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
 // Shader.h
 #include "Shader.h"
 
@@ -27,14 +28,18 @@ const GLuint WIDTH = 800, HEIGHT = 600;
 struct Vertex {
   GLfloat position[3];
   GLfloat color[3];
+  GLfloat texCoord[2];
 
-  Vertex(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b) {
+  Vertex(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b,
+         GLfloat s, GLfloat t) {
     position[0] = x;
     position[1] = y;
     position[2] = z;
     color[0] = r;
     color[1] = g;
     color[2] = b;
+    texCoord[0] = s;
+    texCoord[1] = t;
   }
 };
 
@@ -87,17 +92,6 @@ int main(void) {
   // Создание шейдеров
   Shader shader("Shaders/vertexShader.glsl", "Shaders/fragmentShader.glsl");
 
-  Vertex vertices[] = {
-      Vertex(0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f),
-      Vertex(0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f),
-      Vertex(-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f),
-  };
-
-  // Индексы вершин
-  GLuint indices[] = {
-      0, 1, 2 // Первый треугольник
-  };
-
   /* ----------------------[Текстуры]---------------------- */
   // Загрузка текстуры
   GLuint texture;
@@ -106,45 +100,66 @@ int main(void) {
   // Установка параметров текстуры
 
   // Повторение текстуры по оси S
-  glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
   // Повторение текстуры по оси T
-  glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 
   // Фильтрация текстуры
 
   // Минификация
-  glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   // Магнификация
-  glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   // Загрузка изображения
-  int widthImg, heightImg;
-  unsigned char *image = SOIL_load_image("Textures/container.jpg", &widthImg,
-                                         &heightImg, 0, SOIL_LOAD_RGB);
+  int widthImg, heightImg, nrChannels;
+  unsigned char *data = stbi_load("Textures/container.jpg", &widthImg,
+                                  &heightImg, &nrChannels, 0);
+  // Файл Texture/container.jpg c шириной widthImg, высотой heightImg, и
+  // количеством каналов nrChannels
 
-  // Проверка на ошибки
-  if (image == nullptr) {
-    std::cout << "Failed to load image" << std::endl;
-    return -1;
+  if (data) {
+    glTextureStorage2D(texture, 1, GL_RGB8, widthImg, heightImg);
+    // Текстура texture с количеством уровней 1, размерный формат GL_RGB8,
+    // ширина widthImg, высота heightImg
+
+    // Загрузка изображения в хранилище
+    glTextureSubImage2D(texture, 0, 0, 0, widthImg, heightImg, GL_RGB,
+                        GL_UNSIGNED_BYTE, data);
+    // Текстура texture, уровень детализации 0, смещение по оси X 0, смещение по
+    // оси Y 0, ширина widthImg, высота heightImg, формат GL_RGB, тип данных
+    // GL_UNSIGNED_BYTE, данные image
+
+    // Создание мипмапа
+    glGenerateTextureMipmap(texture);
+
+    // Освобождение памяти
+  } else {
+    std::cout << "Failed to load texture" << std::endl;
   }
 
-  // Создание хранилища для текстуры
-  glTextureStorage2D(texture, 1, GL_RGB8, widthImg, heightImg);
-  // Текстура texture с количеством уровней 1, размерный формат GL_RGB8, ширина
-  // widthImg, высота heightImg
-
-  // Загрузка изображения в хранилище
-  glTextureSubImage2D(texture, 0, 0, 0, widthImg, heightImg, GL_RGB,
-                      GL_UNSIGNED_BYTE, image);
-  // Текстура texture, уровень детализации 0, смещение по оси X 0, смещение по
-  // оси Y 0, ширина widthImg, высота heightImg, формат GL_RGB, тип данных
-  // GL_UNSIGNED_BYTE, данные image
-
   // Освобождение памяти
-  SOIL_free_image_data(image);
+  stbi_image_free(data);
 
-  // Создание мипмапа
-  glGenerateTextureMipmap(texture);
+  /* -----------------------[Фигуры]----------------------- */
+
+  /* Прямоугольник */
+
+  // Координаты вершин
+  Vertex vertices[] = {
+      // Правый верхний угол
+      Vertex(0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f),
+      // Левый верхний угол
+      Vertex(-0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
+      // Правый нижний угол
+      Vertex(0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f),
+      // Левый нижний угол
+      Vertex(-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f),
+  };
+
+  // Индексы вершин
+  GLuint indices[] = {1, 3, 2, // Первый треугольник
+                      1, 0, 2};
 
   /* -----------------------[Буферы]----------------------- */
   // Объявление VAO, VBO, EBO
@@ -186,6 +201,18 @@ int main(void) {
   // представленных в виде GL_FLOAT, нормализовывать эти значения не надо
   // (GL_FALSE), значения начинаются с offsetof(Vertex, color)
 
+  // Атрибут текстурных координат - 2
+  // Включение атрибута вершин
+  glEnableVertexArrayAttrib(VAO[0], 2);
+  // Установка связи атрибута 2 с буфером 2 указанного VAO
+  glVertexArrayAttribBinding(VAO[0], 2, 2);
+
+  glVertexArrayAttribFormat(VAO[0], 2, 2, GL_FLOAT, GL_FALSE,
+                            offsetof(Vertex, texCoord));
+  // Указание для конкретного VAO, что атрибут 2 имеет 2 штуки значений,
+  // представленных в виде GL_FLOAT, нормализовывать эти значения не надо
+  // (GL_FALSE), значения начинаются с offsetof(Vertex, texCoord)
+
   // Установка буфера вершин
   // Позиция вершин
   glVertexArrayVertexBuffer(VAO[0], 0, VBO[0], 0, sizeof(Vertex));
@@ -196,6 +223,9 @@ int main(void) {
   glVertexArrayVertexBuffer(VAO[0], 1, VBO[0], 0, sizeof(Vertex));
   // Указание для конкретного VAO, что точка привязки 1 имеет буфер вершин VBO,
   // смещение 0 и размер sizeof(Vertex)
+
+  // Текстурные координаты вершин
+  glVertexArrayVertexBuffer(VAO[0], 2, VBO[0], 0, sizeof(Vertex));
 
   // Установка буфера индексов
   // Указание для конкретного VAO, что буфер индексов EBO
@@ -214,7 +244,11 @@ int main(void) {
 
     /* Отрисовка */
     // Использование шейдерной программы
-    shader.Use();
+    glUseProgram(shader.Program);
+    // Привязка текстуры
+    glBindTextureUnit(0, texture);
+    // Отправка данных в шейдерную программу
+    glUniform1i(glGetUniformLocation(shader.Program, "Texture"), 0);
     // Привязка VAO
     glBindVertexArray(VAO[0]);
     // Отрисовка примитивов
