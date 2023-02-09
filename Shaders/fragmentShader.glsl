@@ -5,9 +5,10 @@ in vec2 texCoordFromVertex;
 
 out vec4 color;
 
-uniform sampler2D Texture;
+uniform sampler2D Texture_1;
+uniform sampler2D Texture_2;
 
 void main()
 {
-  color = texture(Texture, texCoordFromVertex) * vec4(colorFromVertex, 1.0f);
+  color = mix(texture(Texture_1, texCoordFromVertex), texture(Texture_2, vec2(texCoordFromVertex.x, texCoordFromVertex.y)), 0.2);
 }
