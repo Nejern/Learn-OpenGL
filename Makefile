@@ -1,3 +1,3 @@
-prog: Source.cpp Shader.h Shaders/*.glsl
+prog: Source.cpp Shader.h
 	g++ Source.cpp -o prog -lGL -lglfw -lGLEW
 
