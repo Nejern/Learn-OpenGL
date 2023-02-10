@@ -4,6 +4,10 @@
 #include <GL/glew.h>
 // GLFW
 #include <GLFW/glfw3.h>
+// GLM
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 // STB
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
