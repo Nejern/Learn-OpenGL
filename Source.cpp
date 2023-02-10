@@ -8,11 +8,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-// STB
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
 // Shader.h
 #include "Shader.h"
+// Texture.h
+#include "Texture.h"
 
 #include <cmath>
 #include <iostream>
@@ -97,118 +96,27 @@ int main(void) {
   Shader shader("Shaders/vertexShader.glsl", "Shaders/fragmentShader.glsl");
 
   /* ----------------------[Текстуры]---------------------- */
-  // Переменные
-  int widthImg, heightImg, nrChannels;
-  unsigned char *data;
-
-  // Параметры
-  stbi_set_flip_vertically_on_load(true);
-
   /* Текстура 1 */
-  // Загрузка текстуры
-  GLuint texture_container;
-  glCreateTextures(GL_TEXTURE_2D, 1, &texture_container);
+  Texture texture_container("Textures/container.jpg");
 
-  // Установка параметров текстуры
+  glTextureParameteri(texture_container.ID, GL_TEXTURE_WRAP_S,
+                      GL_MIRRORED_REPEAT);
+  glTextureParameteri(texture_container.ID, GL_TEXTURE_WRAP_T,
+                      GL_MIRRORED_REPEAT);
 
-  // Повторение текстуры по оси S
-  glTextureParameteri(texture_container, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-  // Повторение текстуры по оси T
-  glTextureParameteri(texture_container, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-
-  // Фильтрация текстуры
-
-  // Минификация
-  glTextureParameteri(texture_container, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  // Магнификация
-  glTextureParameteri(texture_container, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  // Загрузка изображения
-  data = stbi_load("Textures/container.jpg", &widthImg, &heightImg, &nrChannels,
-                   0);
-  // Файл Texture/container.jpg c шириной widthImg, высотой heightImg, и
-  // количеством каналов nrChannels
-
-  if (data) {
-    if (nrChannels == 3) {
-      // Создание хранилища для текстуры
-      glTextureStorage2D(texture_container, 1, GL_RGB8, widthImg, heightImg);
-      // Текстура texture с количеством уровней 1, размерный формат GL_RGB8,
-      // ширина widthImg, высота heightImg
-
-      // Загрузка изображения в хранилище
-      glTextureSubImage2D(texture_container, 0, 0, 0, widthImg, heightImg,
-                          GL_RGB, GL_UNSIGNED_BYTE, data);
-      // Текстура texture, уровень детализации 0, смещение по оси X 0, смещение
-      // по оси Y 0, ширина widthImg, высота heightImg, формат GL_RGB, тип
-      // данных GL_UNSIGNED_BYTE, данные image
-    } else if (nrChannels == 4) {
-      glTextureStorage2D(texture_container, 1, GL_RGBA8, widthImg, heightImg);
-      glTextureSubImage2D(texture_container, 0, 0, 0, widthImg, heightImg,
-                          GL_RGBA, GL_UNSIGNED_BYTE, data);
-    } else {
-      std::cout << "Texture container.jpg has an unsupported number of color "
-                   "channels."
-                << std::endl;
-    }
-
-    // Создание мипмапа
-    glGenerateTextureMipmap(texture_container);
-
-  } else {
-    std::cout << "Failed to load texture \"container\"" << std::endl;
-  }
-  // Освобождение памяти
-  stbi_image_free(data);
+  glTextureParameteri(texture_container.ID, GL_TEXTURE_MIN_FILTER,
+                      GL_LINEAR_MIPMAP_LINEAR);
+  glTextureParameteri(texture_container.ID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   /* Текстура 2 */
-  // Загрузка текстуры
-  GLuint texture_emoji;
-  glCreateTextures(GL_TEXTURE_2D, 1, &texture_emoji);
+  Texture texture_emoji("Textures/emoji.png");
 
-  // Установка параметров текстуры
-  glTextureParameteri(texture_emoji, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-  glTextureParameteri(texture_emoji, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  glTextureParameteri(texture_emoji.ID, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTextureParameteri(texture_emoji.ID, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 
-  // Фильтрация текстуры
-  glTextureParameteri(texture_emoji, GL_TEXTURE_MIN_FILTER,
-                      GL_NEAREST_MIPMAP_LINEAR);
-  glTextureParameteri(texture_emoji, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-  // Загрузка изображения
-  data =
-      stbi_load("./Textures/emoji.png", &widthImg, &heightImg, &nrChannels, 0);
-
-  if (data) {
-    if (nrChannels == 3) {
-      // Создание хранилища для текстуры
-      glTextureStorage2D(texture_emoji, 1, GL_RGB8, widthImg, heightImg);
-      // Текстура texture с количеством уровней 1, размерный формат GL_RGB8,
-      // ширина widthImg, высота heightImg
-
-      // Загрузка изображения в хранилище
-      glTextureSubImage2D(texture_emoji, 0, 0, 0, widthImg, heightImg, GL_RGB,
-                          GL_UNSIGNED_BYTE, data);
-      // Текстура texture, уровень детализации 0, смещение по оси X 0, смещение
-      // по оси Y 0, ширина widthImg, высота heightImg, формат GL_RGB, тип
-      // данных GL_UNSIGNED_BYTE, данные image
-    } else if (nrChannels == 4) {
-      glTextureStorage2D(texture_emoji, 1, GL_RGBA8, widthImg, heightImg);
-      glTextureSubImage2D(texture_emoji, 0, 0, 0, widthImg, heightImg, GL_RGBA,
-                          GL_UNSIGNED_BYTE, data);
-    } else {
-      std::cout << "Texture emoji.png has an unsupported number of color "
-                   "channels."
-                << std::endl;
-    }
-
-    // Создание мипмапа
-    glGenerateTextureMipmap(texture_emoji);
-  } else {
-    std::cout << "Failed to load texture \"emoji\"" << std::endl;
-  }
-  // Освобождение памяти
-  stbi_image_free(data);
+  glTextureParameteri(texture_emoji.ID, GL_TEXTURE_MIN_FILTER,
+                      GL_LINEAR_MIPMAP_LINEAR);
+  glTextureParameteri(texture_emoji.ID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   /* -----------------------[Фигуры]----------------------- */
 
@@ -227,8 +135,10 @@ int main(void) {
   };
 
   // Индексы вершин
-  GLuint indices[] = {1, 3, 2, // Первый треугольник
-                      1, 0, 2};
+  GLuint indices[] = {
+      1, 3, 2, // Первый треугольник
+      1, 0, 2  // Второй треугольник
+  };
 
   /* -----------------------[Буферы]----------------------- */
   // Объявление VAO, VBO, EBO
@@ -301,7 +211,6 @@ int main(void) {
   glVertexArrayElementBuffer(VAO[0], EBO[0]);
 
   /* -----------------------[Отрисовка]----------------------- */
-
   // Цвет очистки экрана
   glClearColor(29.f / 255, 32.f / 255, 33.f / 255, 1.f);
 
@@ -309,8 +218,8 @@ int main(void) {
   glUseProgram(shader.Program);
 
   // Привязка текстур
-  glBindTextureUnit(0, texture_container);
-  glBindTextureUnit(1, texture_emoji);
+  glBindTextureUnit(0, texture_container.ID);
+  glBindTextureUnit(1, texture_emoji.ID);
 
   // Отправка данных в шейдерную программу
   glUniform1i(glGetUniformLocation(shader.Program, "Texture_1"), 0);
