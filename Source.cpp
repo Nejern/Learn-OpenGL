@@ -233,7 +233,7 @@ int main(void) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Изменение матрицы трансформации
-    objFirstTrans = glm::rotate(objFirstTrans, glm::radians(90.f * deltaTime),
+    objFirstTrans = glm::rotate(objFirstTrans, glm::radians(30.f * deltaTime),
                                 glm::vec3(0.f, 0.f, 1.f));
 
     objSecondTrans =
@@ -269,6 +269,9 @@ int main(void) {
   }
 
   /* Очистка ресурсов */
+  // Удаление текстур
+  glDeleteTextures(1, &texture_container.ID);
+  glDeleteTextures(1, &texture_emoji.ID);
   // Удаление VAO
   glDeleteVertexArrays(sizeof(VAO) / sizeof(VAO[0]), VAO);
   // Удаление VBO
