@@ -41,6 +41,10 @@ struct Vertex {
   }
 };
 
+// Глобальные переменные времени
+long double gameTime = 0.f;
+float timeScale = 1.0f;
+
 int main(void) {
   /* -----------------------[Инициализация]----------------------- */
   /* GLFW */
@@ -203,12 +207,15 @@ int main(void) {
   glUniform1i(glGetUniformLocation(shader.Program, "Texture_1"), 0);
   glUniform1i(glGetUniformLocation(shader.Program, "Texture_2"), 1);
 
+  /* Матрицы */
   // Матрица модели
   glm::mat4 model = glm::mat4(1.f);
   model = glm::rotate(model, glm::radians(-55.f), glm::vec3(1.f, 0.f, 0.f));
+
   // Матрица вида
   glm::mat4 view = glm::mat4(1.f);
   view = glm::translate(view, glm::vec3(0.f, 0.f, -3.f));
+
   // Матрица проекции
   glm::mat4 projection = glm::mat4(1.f);
   projection = glm::perspective(glm::radians(45.f),
@@ -222,17 +229,15 @@ int main(void) {
   glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
   glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-  GLfloat time = 0.f;
-  GLfloat timeScale = 1.0f;
   GLfloat realTime = 0.f;
   GLfloat lastUpdeteTime = 0.f;
   GLfloat deltaTime = 0.f;
   while (!glfwWindowShouldClose(window)) {
     // Обновление времени
-    lastUpdeteTime = time;
-    time += (glfwGetTime() - realTime) * timeScale;
+    lastUpdeteTime = gameTime;
+    gameTime += ((glfwGetTime() - realTime) * timeScale);
     realTime = glfwGetTime();
-    deltaTime = time - lastUpdeteTime;
+    deltaTime = gameTime - lastUpdeteTime;
 
     // Проверка наличия событий
     glfwPollEvents();
@@ -286,7 +291,7 @@ int main(void) {
 
 /* Реализация функций */
 // Колбэк для обработки нажатия клавиш клавиатуры
-int space_flag = 0;
+bool l_flag;
 void key_callback(GLFWwindow *window, int key, int scanCode, int action,
                   int mode) {
   // Когда пользователь нажимает ESC, мы устанавливаем свойство
@@ -294,14 +299,20 @@ void key_callback(GLFWwindow *window, int key, int scanCode, int action,
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, GL_TRUE);
   }
-  if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
-    if (space_flag == 0) {
+  if (key == GLFW_KEY_L && action == GLFW_PRESS) {
+    if (l_flag == 0) {
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-      space_flag = 1;
+      l_flag = 1;
     } else {
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      space_flag = 0;
+      l_flag = 0;
     }
+  }
+  if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
+    timeScale += 0.1f;
+  }
+  if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) {
+    timeScale -= 0.1f;
   }
 }
 
