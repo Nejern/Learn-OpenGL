@@ -121,23 +121,64 @@ int main(void) {
 
   /* Прямоугольник */
 
-  // Координаты вершин
+  // Координаты вершин куба
   Vertex vertices[] = {
-      // Правый верхний угол
-      Vertex(0.5f, 0.5f, 0.0f, 1.0f, 1.0f),
-      // Левый верхний угол
-      Vertex(-0.5f, 0.5f, 0.0f, 0.0f, 1.0f),
-      // Правый нижний угол
-      Vertex(0.5f, -0.5f, 0.0f, 1.0f, 0.0f),
-      // Левый нижний угол
-      Vertex(-0.5f, -0.5f, 0.0f, 0.0f, 0.0f),
+    Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 0.0f),
+    Vertex(0.5f, -0.5f, -0.5f, 1.0f, 0.0f),
+    Vertex(0.5f, 0.5f, -0.5f, 1.0f, 1.0f),
+    Vertex(0.5f, 0.5f, -0.5f, 1.0f, 1.0f),
+    Vertex(-0.5f, 0.5f, -0.5f, 0.0f, 1.0f),
+    Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 0.0f),
+
+    Vertex(-0.5f, -0.5f, 0.5f, 0.0f, 0.0f),
+    Vertex(0.5f, -0.5f, 0.5f, 1.0f, 0.0f),
+    Vertex(0.5f, 0.5f, 0.5f, 1.0f, 1.0f),
+    Vertex(0.5f, 0.5f, 0.5f, 1.0f, 1.0f),
+    Vertex(-0.5f, 0.5f, 0.5f, 0.0f, 1.0f),
+    Vertex(-0.5f, -0.5f, 0.5f, 0.0f, 0.0f),
+
+    Vertex(-0.5f, 0.5f, 0.5f, 1.0f, 0.0f),
+    Vertex(-0.5f, 0.5f, -0.5f, 1.0f, 1.0f),
+    Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 1.0f),
+    Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 1.0f),
+    Vertex(-0.5f, -0.5f, 0.5f, 0.0f, 0.0f),
+    Vertex(-0.5f, 0.5f, 0.5f, 1.0f, 0.0f),
+
+    Vertex(0.5f, 0.5f, 0.5f, 1.0f, 0.0f),
+    Vertex(0.5f, 0.5f, -0.5f, 1.0f, 1.0f),
+    Vertex(0.5f, -0.5f, -0.5f, 0.0f, 1.0f),
+    Vertex(0.5f, -0.5f, -0.5f, 0.0f, 1.0f),
+    Vertex(0.5f, -0.5f, 0.5f, 0.0f, 0.0f),
+    Vertex(0.5f, 0.5f, 0.5f, 1.0f, 0.0f),
+
+    Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 1.0f),
+    Vertex(0.5f, -0.5f, -0.5f, 1.0f, 1.0f),
+    Vertex(0.5f, -0.5f, 0.5f, 1.0f, 0.0f),
+    Vertex(0.5f, -0.5f, 0.5f, 1.0f, 0.0f),
+    Vertex(-0.5f, -0.5f, 0.5f, 0.0f, 0.0f),
+    Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 1.0f),
+
+    Vertex(-0.5f, 0.5f, -0.5f, 0.0f, 1.0f),
+    Vertex(0.5f, 0.5f, -0.5f, 1.0f, 1.0f),
+    Vertex(0.5f, 0.5f, 0.5f, 1.0f, 0.0f),
+    Vertex(0.5f, 0.5f, 0.5f, 1.0f, 0.0f),
+    Vertex(-0.5f, 0.5f, 0.5f, 0.0f, 0.0f),
+    Vertex(-0.5f, 0.5f, -0.5f, 0.0f, 1.0f),
   };
 
   // Индексы вершин
-  GLuint indices[] = {
-      1, 3, 2, // Первый треугольник
-      1, 0, 2  // Второй треугольник
-  };
+  GLuint indices[] = {// Дальняя грань
+                      0, 1, 2, 2, 3, 0,
+                      // Передняя грань
+                      4, 5, 6, 6, 7, 4,
+                      // Верхняя грань
+                      1, 5, 6, 6, 2, 1,
+                      // Нижняя грань
+                      0, 4, 7, 7, 3, 0,
+                      // Левая грань
+                      0, 1, 5, 5, 4, 0,
+                      // Правая грань
+                      3, 2, 6, 6, 7, 3};
 
   /* -----------------------[Буферы]----------------------- */
   // Объявление VAO, VBO, EBO
@@ -232,6 +273,10 @@ int main(void) {
   GLfloat realTime = 0.f;
   GLfloat lastUpdeteTime = 0.f;
   GLfloat deltaTime = 0.f;
+
+  // Depth test
+  glEnable(GL_DEPTH_TEST);
+
   while (!glfwWindowShouldClose(window)) {
     // Обновление времени
     lastUpdeteTime = gameTime;
@@ -243,7 +288,7 @@ int main(void) {
     glfwPollEvents();
 
     // Очистка буфера цвета
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Изменение матрицы трансформации
     model = glm::rotate(model, glm::radians(30.f * deltaTime),
@@ -255,8 +300,7 @@ int main(void) {
     // Отрисовка примитивов
     // Первая фигура
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]),
-                   GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
     // Вторая фигура
 
     // Отвязка VAO
@@ -309,10 +353,10 @@ void key_callback(GLFWwindow *window, int key, int scanCode, int action,
     }
   }
   if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
-    timeScale += 0.1f;
+    timeScale += 10.f;
   }
   if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) {
-    timeScale -= 0.1f;
+    timeScale -= 10.f;
   }
 }
 
