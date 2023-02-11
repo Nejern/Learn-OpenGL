@@ -199,15 +199,28 @@ int main(void) {
   glBindTextureUnit(0, texture_container.ID);
   glBindTextureUnit(1, texture_emoji.ID);
 
-  // Transform
-  glm::mat4 objFirstTrans;
-  objFirstTrans = glm::mat4(1.f);
-  objFirstTrans = glm::translate(objFirstTrans, glm::vec3(0.5f, -0.5f, 0.f));
-  objFirstTrans = glm::scale(objFirstTrans, glm::vec3(0.5f, 0.5f, 1.f));
-
-  // Отправка данных в шейдерную программу
+  // Передача текстурных юнитов в шейдер
   glUniform1i(glGetUniformLocation(shader.Program, "Texture_1"), 0);
   glUniform1i(glGetUniformLocation(shader.Program, "Texture_2"), 1);
+
+  // Матрица модели
+  glm::mat4 model = glm::mat4(1.f);
+  model = glm::rotate(model, glm::radians(-55.f), glm::vec3(1.f, 0.f, 0.f));
+  // Матрица вида
+  glm::mat4 view = glm::mat4(1.f);
+  view = glm::translate(view, glm::vec3(0.f, 0.f, -3.f));
+  // Матрица проекции
+  glm::mat4 projection = glm::mat4(1.f);
+  projection = glm::perspective(glm::radians(45.f),
+                                (float)WIDTH / (float)HEIGHT, 0.1f, 100.f);
+
+  GLint modelLoc = glGetUniformLocation(shader.Program, "model");
+  GLint viewLoc = glGetUniformLocation(shader.Program, "view");
+  GLint projectionLoc = glGetUniformLocation(shader.Program, "projection");
+  // Передача матриц в шейдер
+  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+  glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+  glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
   GLfloat time = 0.f;
   GLfloat timeScale = 1.0f;
@@ -228,16 +241,15 @@ int main(void) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Изменение матрицы трансформации
-    objFirstTrans = glm::rotate(objFirstTrans, glm::radians(30.f * deltaTime),
-                                glm::vec3(0.f, 0.f, 1.f));
+    model = glm::rotate(model, glm::radians(30.f * deltaTime),
+                        glm::vec3(0.f, 0.f, 1.f));
 
     /* Отрисовка */
     // Привязка VAO
     glBindVertexArray(VAO[0]);
     // Отрисовка примитивов
     // Первая фигура
-    glUniformMatrix4fv(glGetUniformLocation(shader.Program, "transform"), 1,
-                       GL_FALSE, glm::value_ptr(objFirstTrans));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
     glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]),
                    GL_UNSIGNED_INT, 0);
     // Вторая фигура
