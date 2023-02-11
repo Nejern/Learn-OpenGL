@@ -205,11 +205,6 @@ int main(void) {
   objFirstTrans = glm::translate(objFirstTrans, glm::vec3(0.5f, -0.5f, 0.f));
   objFirstTrans = glm::scale(objFirstTrans, glm::vec3(0.5f, 0.5f, 1.f));
 
-  glm::mat4 objSecondTrans;
-  objSecondTrans = glm::mat4(1.f);
-  objSecondTrans = glm::translate(objSecondTrans, glm::vec3(-0.5f, 0.5f, 0.f));
-  objFirstTrans = glm::scale(objFirstTrans, glm::vec3(0.7f, 0.7f, 1.f));
-
   // Отправка данных в шейдерную программу
   glUniform1i(glGetUniformLocation(shader.Program, "Texture_1"), 0);
   glUniform1i(glGetUniformLocation(shader.Program, "Texture_2"), 1);
@@ -236,10 +231,6 @@ int main(void) {
     objFirstTrans = glm::rotate(objFirstTrans, glm::radians(30.f * deltaTime),
                                 glm::vec3(0.f, 0.f, 1.f));
 
-    objSecondTrans =
-        glm::rotate(objSecondTrans, glm::radians(-30.f * deltaTime),
-                    glm::vec3(0.f, 0.f, 1.f));
-    /* Отрисовка */
     /* Отрисовка */
     // Привязка VAO
     glBindVertexArray(VAO[0]);
@@ -250,10 +241,6 @@ int main(void) {
     glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]),
                    GL_UNSIGNED_INT, 0);
     // Вторая фигура
-    glUniformMatrix4fv(glGetUniformLocation(shader.Program, "transform"), 1,
-                       GL_FALSE, glm::value_ptr(objSecondTrans));
-    glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]),
-                   GL_UNSIGNED_INT, 0);
 
     // Отвязка VAO
     glBindVertexArray(0);
