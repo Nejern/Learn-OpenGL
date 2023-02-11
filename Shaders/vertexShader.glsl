@@ -1,15 +1,14 @@
 #version 460 core
 
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec3 color;
-layout (location = 2) in vec2 texCoord;
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoord;
 
-out vec3 colorFromVertex;
-out vec2 texCoordFromVertex;
+out vec2 TexCoord;
+
+uniform mat4 transform;
 
 void main()
 {
-  gl_Position = vec4(position.x, position.y, position.z, 1.0);
-  colorFromVertex = color;
-  texCoordFromVertex = texCoord;
+  gl_Position = transform * vec4(aPos.x, aPos.y, aPos.z, 1.0);
+  TexCoord = aTexCoord;
 }

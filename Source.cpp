@@ -29,20 +29,15 @@ const GLuint WIDTH = 800, HEIGHT = 600;
 
 // Структура для хранения координат вершин
 struct Vertex {
-  GLfloat position[3];
-  GLfloat color[3];
-  GLfloat texCoord[2];
+  GLfloat aPos[3];
+  GLfloat aTexCoord[2];
 
-  Vertex(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b,
-         GLfloat s, GLfloat t) {
-    position[0] = x;
-    position[1] = y;
-    position[2] = z;
-    color[0] = r;
-    color[1] = g;
-    color[2] = b;
-    texCoord[0] = s;
-    texCoord[1] = t;
+  Vertex(GLfloat x, GLfloat y, GLfloat z, GLfloat s, GLfloat t) {
+    aPos[0] = x;
+    aPos[1] = y;
+    aPos[2] = z;
+    aTexCoord[0] = s;
+    aTexCoord[1] = t;
   }
 };
 
@@ -125,13 +120,13 @@ int main(void) {
   // Координаты вершин
   Vertex vertices[] = {
       // Правый верхний угол
-      Vertex(0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f),
+      Vertex(0.5f, 0.5f, 0.0f, 1.0f, 1.0f),
       // Левый верхний угол
-      Vertex(-0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
+      Vertex(-0.5f, 0.5f, 0.0f, 0.0f, 1.0f),
       // Правый нижний угол
-      Vertex(0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f),
+      Vertex(0.5f, -0.5f, 0.0f, 1.0f, 0.0f),
       // Левый нижний угол
-      Vertex(-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f),
+      Vertex(-0.5f, -0.5f, 0.0f, 0.0f, 0.0f),
   };
 
   // Индексы вершин
@@ -163,31 +158,19 @@ int main(void) {
   glVertexArrayAttribBinding(VAO[0], 0, 0);
 
   glVertexArrayAttribFormat(VAO[0], 0, 3, GL_FLOAT, GL_FALSE,
-                            offsetof(Vertex, position));
+                            offsetof(Vertex, aPos));
   // Указание для конкретного VAO, что атрибут 0 имеет 3 штуки значений,
   // представленных в виде GL_FLOAT, нормализовывать эти значения не надо
   // (GL_FALSE), значения начинаются с offsetof(Vertex, position)
 
-  // Атрибут цвета - 1
+  // Атрибут текстурных координат - 1
   // Включение атрибута вершин
   glEnableVertexArrayAttrib(VAO[0], 1);
-  // Установка связи атрибута 1 с буфером 1 указанного VAO
+  // Установка связи атрибута 2 с буфером 2 указанного VAO
   glVertexArrayAttribBinding(VAO[0], 1, 1);
 
-  glVertexArrayAttribFormat(VAO[0], 1, 3, GL_FLOAT, GL_FALSE,
-                            offsetof(Vertex, color));
-  // Указание для конкретного VAO, что атрибут 1 имеет 3 штуки значений,
-  // представленных в виде GL_FLOAT, нормализовывать эти значения не надо
-  // (GL_FALSE), значения начинаются с offsetof(Vertex, color)
-
-  // Атрибут текстурных координат - 2
-  // Включение атрибута вершин
-  glEnableVertexArrayAttrib(VAO[0], 2);
-  // Установка связи атрибута 2 с буфером 2 указанного VAO
-  glVertexArrayAttribBinding(VAO[0], 2, 2);
-
-  glVertexArrayAttribFormat(VAO[0], 2, 2, GL_FLOAT, GL_FALSE,
-                            offsetof(Vertex, texCoord));
+  glVertexArrayAttribFormat(VAO[0], 1, 2, GL_FLOAT, GL_FALSE,
+                            offsetof(Vertex, aTexCoord));
   // Указание для конкретного VAO, что атрибут 2 имеет 2 штуки значений,
   // представленных в виде GL_FLOAT, нормализовывать эти значения не надо
   // (GL_FALSE), значения начинаются с offsetof(Vertex, texCoord)
@@ -198,13 +181,8 @@ int main(void) {
   // Указание для конкретного VAO, что точка привязки 0 имеет буфер вершин VBO,
   // смещение 0 и размер sizeof(Vertex)
 
-  // Цвет вершин
-  glVertexArrayVertexBuffer(VAO[0], 1, VBO[0], 0, sizeof(Vertex));
-  // Указание для конкретного VAO, что точка привязки 1 имеет буфер вершин VBO,
-  // смещение 0 и размер sizeof(Vertex)
-
   // Текстурные координаты вершин
-  glVertexArrayVertexBuffer(VAO[0], 2, VBO[0], 0, sizeof(Vertex));
+  glVertexArrayVertexBuffer(VAO[0], 1, VBO[0], 0, sizeof(Vertex));
 
   // Установка буфера индексов
   // Указание для конкретного VAO, что буфер индексов EBO
@@ -221,17 +199,42 @@ int main(void) {
   glBindTextureUnit(0, texture_container.ID);
   glBindTextureUnit(1, texture_emoji.ID);
 
+  // Transform
+  glm::mat4 transform;
+  transform = glm::mat4(1.f);
+  transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.f));
+  transform = glm::scale(transform, glm::vec3(0.5f, 0.5f, 1.f));
+
   // Отправка данных в шейдерную программу
   glUniform1i(glGetUniformLocation(shader.Program, "Texture_1"), 0);
   glUniform1i(glGetUniformLocation(shader.Program, "Texture_2"), 1);
 
+  GLfloat time = 0.f;
+  GLfloat timeScale = 1.0f;
+  GLfloat realTime = 0.f;
+  GLfloat lastUpdeteTime = 0.f;
+  GLfloat deltaTime = 0.f;
   while (!glfwWindowShouldClose(window)) {
+    // Обновление времени
+    lastUpdeteTime = time;
+    time += (glfwGetTime() - realTime) * timeScale;
+    realTime = glfwGetTime();
+    deltaTime = time - lastUpdeteTime;
+
+    std::cout << "time: " << time << std::endl;
+    std::cout << "realTime: " << realTime << std::endl;
+
     // Проверка наличия событий
     glfwPollEvents();
 
     // Очистка буфера цвета
     glClear(GL_COLOR_BUFFER_BIT);
 
+    // Изменение матрицы трансформации
+    transform = glm::rotate(transform, glm::radians(90.f * deltaTime),
+                            glm::vec3(0.f, 0.f, 1.f));
+    glUniformMatrix4fv(glGetUniformLocation(shader.Program, "transform"), 1,
+                       GL_FALSE, glm::value_ptr(transform));
     /* Отрисовка */
     // Привязка VAO
     glBindVertexArray(VAO[0]);
