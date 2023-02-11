@@ -221,9 +221,6 @@ int main(void) {
     realTime = glfwGetTime();
     deltaTime = time - lastUpdeteTime;
 
-    std::cout << "time: " << time << std::endl;
-    std::cout << "realTime: " << realTime << std::endl;
-
     // Проверка наличия событий
     glfwPollEvents();
 
