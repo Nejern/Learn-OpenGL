@@ -14,7 +14,6 @@
 #include "Texture.h"
 
 #include <cmath>
-#include <iostream>
 
 // Прототипы функций
 // Колбэк для обработки нажатия клавиш клавиатуры
@@ -221,12 +220,27 @@ int main(void) {
   // Текстурные координаты вершин
   glVertexArrayVertexBuffer(VAO[0], 1, VBO[0], 0, sizeof(Vertex));
 
-  /* -----------------------[Отрисовка]----------------------- */
-  // Цвет очистки экрана
-  glClearColor(29.f / 255, 32.f / 255, 33.f / 255, 1.f);
+  /* -----------------------[Камера]----------------------- */
+  // Позиция камеры
+  glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+  // Направление камеры
+  glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+  glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+  // Вектор "право" камеры
+  glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+  glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+  // Вектор "вверх" камеры
+  glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
 
+  const float radius = 10.f;
+  float camX, camZ;
+
+  /* -----------------------[Отрисовка]----------------------- */
   // Использование шейдерной программы
   glUseProgram(shader.Program);
+
+  // Цвет очистки экрана
+  glClearColor(29.f / 255, 32.f / 255, 33.f / 255, 1.f);
 
   // Привязка текстур
   glBindTextureUnit(0, texture_container.ID);
@@ -242,7 +256,6 @@ int main(void) {
 
   // Матрица вида
   glm::mat4 view = glm::mat4(1.f);
-  view = glm::translate(view, glm::vec3(0.f, 0.f, -3.f));
 
   // Матрица проекции
   glm::mat4 projection = glm::mat4(1.f);
@@ -268,6 +281,7 @@ int main(void) {
 
   // Привязка VAO
   glBindVertexArray(VAO[0]);
+
   while (!glfwWindowShouldClose(window)) {
     // Обновление времени
     lastUpdeteTime = gameTime;
@@ -281,8 +295,14 @@ int main(void) {
     // Очистка буфера цвета
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    /* Отрисовка */
+    // Камера
+    camX = sin(gameTime) * radius;
+    camZ = cos(gameTime) * radius;
+    view = glm::lookAt(glm::vec3(camX, 0.f, camZ), glm::vec3(0.f, 0.f, 0.f),
+                       glm::vec3(0.f, 1.f, 0.f));
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
+    /* Отрисовка */
     // Цикл кубов
     for (int i = 0; i < (int)sizeof(cubePos) / (int)sizeof(glm::vec3); i++) {
       // Матрица модели
