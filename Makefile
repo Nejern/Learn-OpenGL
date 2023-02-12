@@ -1,2 +1,2 @@
-prog: Source.cpp Shader.h Texture.h
+prog: Source.cpp libs/*.h
 	g++ Source.cpp -o prog -lGL -lglfw -lGLEW

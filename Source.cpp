@@ -8,25 +8,32 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-// Shader.h
-#include "Shader.h"
-// Texture.h
-#include "Texture.h"
 
+// Other Libs
 #include <cmath>
 
-// Прототипы функций
+// Shader.h
+#include "libs/Shader.h"
+// Texture.h
+#include "libs/Texture.h"
+// Camera.h
+#include "libs/Camera.h"
+
+/* Прототипы функций */
 // Колбэк для обработки нажатия клавиш клавиатуры
 void key_callback(GLFWwindow *window, int key, int scanCode, int action,
                   int mode);
+// Колбэк для обработки перемещения мыши
+void mouse_callback(GLFWwindow *window, double xPos, double yPos);
+// Колбэк для обработки колеса мыши
+void scroll_callback(GLFWwindow *window, double xOffset, double yOffset);
+// Колбэк для обработки изменения размера окна
+void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
-// Текущее состояне
-void context_status();
-
-// Ширина и высота окна
+/* Ширина и высота окна */
 const GLuint WIDTH = 800, HEIGHT = 600;
 
-// Структура для хранения координат вершин
+/* Структура для хранения координат вершин */
 struct Vertex {
   GLfloat aPos[3];
   GLfloat aTexCoord[2];
@@ -40,9 +47,18 @@ struct Vertex {
   }
 };
 
-// Глобальные переменные времени
-long double gameTime = 0.f;
-float timeScale = 1.0f;
+/* Камера */
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+float lastX = WIDTH / 2.0f;
+float lastY = HEIGHT / 2.0f;
+bool firstMouse = true;
+
+/* Глобальные переменные времени */
+long double gameTime = 0.f; // Внутриигровое время
+float timeScale = 1.0f; // Коэффициент масштабирования времени
+long double realTime = 0.f; // Время, прошедшее с начала работы программы
+long double lastUpdeteTime = 0.f; // Время последнего обновления
+double deltaTime = 0.f;           // Время между кадрами
 
 int main(void) {
   /* -----------------------[Инициализация]----------------------- */
@@ -75,6 +91,15 @@ int main(void) {
   /* Колбэки */
   // Нажатие клавиш клавиатуры
   glfwSetKeyCallback(window, key_callback);
+  // Перемещение мыши
+  glfwSetCursorPosCallback(window, mouse_callback);
+  // Колесо мыши
+  glfwSetScrollCallback(window, scroll_callback);
+  // Изменение размера окна
+  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+  // Установка режима захвата курсора
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   /* GLEW */
   // Инициализация GLEW
@@ -92,34 +117,8 @@ int main(void) {
   /* -----------------------[Шейдеры]----------------------- */
   // Создание шейдеров
   Shader shader("Shaders/vertexShader.glsl", "Shaders/fragmentShader.glsl");
-
-  /* ----------------------[Текстуры]---------------------- */
-  /* Текстура 1 */
-  Texture texture_container("Textures/container.jpg");
-
-  glTextureParameteri(texture_container.ID, GL_TEXTURE_WRAP_S,
-                      GL_MIRRORED_REPEAT);
-  glTextureParameteri(texture_container.ID, GL_TEXTURE_WRAP_T,
-                      GL_MIRRORED_REPEAT);
-
-  glTextureParameteri(texture_container.ID, GL_TEXTURE_MIN_FILTER,
-                      GL_LINEAR_MIPMAP_LINEAR);
-  glTextureParameteri(texture_container.ID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  /* Текстура 2 */
-  Texture texture_emoji("Textures/emoji.png");
-
-  glTextureParameteri(texture_emoji.ID, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-  glTextureParameteri(texture_emoji.ID, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-
-  glTextureParameteri(texture_emoji.ID, GL_TEXTURE_MIN_FILTER,
-                      GL_LINEAR_MIPMAP_LINEAR);
-  glTextureParameteri(texture_emoji.ID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
   /* -----------------------[Фигуры]----------------------- */
-
-  /* Прямоугольник */
-
+  /* Куб */
   // Координаты вершин куба
   Vertex vertices[] = {
       Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 0.0f),
@@ -174,6 +173,29 @@ int main(void) {
       glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f),
   };
 
+  /* ----------------------[Текстуры]---------------------- */
+  /* Текстура 1 */
+  Texture texture_container("Textures/container.jpg");
+
+  glTextureParameteri(texture_container.ID, GL_TEXTURE_WRAP_S,
+                      GL_MIRRORED_REPEAT);
+  glTextureParameteri(texture_container.ID, GL_TEXTURE_WRAP_T,
+                      GL_MIRRORED_REPEAT);
+
+  glTextureParameteri(texture_container.ID, GL_TEXTURE_MIN_FILTER,
+                      GL_LINEAR_MIPMAP_LINEAR);
+  glTextureParameteri(texture_container.ID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  /* Текстура 2 */
+  Texture texture_emoji("Textures/emoji.png");
+
+  glTextureParameteri(texture_emoji.ID, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTextureParameteri(texture_emoji.ID, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+
+  glTextureParameteri(texture_emoji.ID, GL_TEXTURE_MIN_FILTER,
+                      GL_LINEAR_MIPMAP_LINEAR);
+  glTextureParameteri(texture_emoji.ID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
   /* -----------------------[Буферы]----------------------- */
   // Объявление VAO, VBO, EBO
   GLuint VAO[1], VBO[1], EBO[1];
@@ -220,20 +242,17 @@ int main(void) {
   // Текстурные координаты вершин
   glVertexArrayVertexBuffer(VAO[0], 1, VBO[0], 0, sizeof(Vertex));
 
-  /* -----------------------[Камера]----------------------- */
-  // Позиция камеры
-  glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-  // Направление камеры
-  glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-  glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
-  // Вектор "право" камеры
-  glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-  glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
-  // Вектор "вверх" камеры
-  glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
+  /* -----------------------[Матрицы]----------------------- */
+  // Матрица модели
+  glm::mat4 model = glm::mat4(1.f);
 
-  const float radius = 10.f;
-  float camX, camZ;
+  // Матрица вида
+  glm::mat4 view = glm::mat4(1.f);
+
+  // Матрица проекции
+  glm::mat4 projection = glm::mat4(1.f);
+  projection = glm::perspective(glm::radians(45.f),
+                                (float)WIDTH / (float)HEIGHT, 0.1f, 100.f);
 
   /* -----------------------[Отрисовка]----------------------- */
   // Использование шейдерной программы
@@ -250,18 +269,6 @@ int main(void) {
   glUniform1i(glGetUniformLocation(shader.Program, "Texture_1"), 0);
   glUniform1i(glGetUniformLocation(shader.Program, "Texture_2"), 1);
 
-  /* Матрицы */
-  // Матрица модели
-  glm::mat4 model = glm::mat4(1.f);
-
-  // Матрица вида
-  glm::mat4 view = glm::mat4(1.f);
-
-  // Матрица проекции
-  glm::mat4 projection = glm::mat4(1.f);
-  projection = glm::perspective(glm::radians(45.f),
-                                (float)WIDTH / (float)HEIGHT, 0.1f, 100.f);
-
   // Объявление переменных для передачи в шейдер
   GLint modelLoc = glGetUniformLocation(shader.Program, "model");
   GLint viewLoc = glGetUniformLocation(shader.Program, "view");
@@ -272,10 +279,6 @@ int main(void) {
   glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
   // Переменные времени
-  long double realTime = 0.f;
-  long double lastUpdeteTime = 0.f;
-  double deltaTime = 0.f;
-
   // Depth test
   glEnable(GL_DEPTH_TEST);
 
@@ -295,11 +298,13 @@ int main(void) {
     // Очистка буфера цвета
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Камера
-    camX = sin(gameTime) * radius;
-    camZ = cos(gameTime) * radius;
-    view = glm::lookAt(glm::vec3(camX, 0.f, camZ), glm::vec3(0.f, 0.f, 0.f),
-                       glm::vec3(0.f, 1.f, 0.f));
+    // Передача матриц в шейдер
+    // Передача матрицы проекции
+    glm::mat4 projection = glm::perspective(
+        glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.f);
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+    // Передача матрицы вида
+    glm::mat4 view = camera.GetViewMatrix();
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
     /* Отрисовка */
@@ -386,26 +391,44 @@ void key_callback(GLFWwindow *window, int key, int scanCode, int action,
   if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
     timeScale = 1.f;
   }
+
+  // Camera
+  if (key == GLFW_KEY_W) {
+    camera.ProcessKeyboard(FORWARD, deltaTime);
+  }
+  if (key == GLFW_KEY_S) {
+    camera.ProcessKeyboard(BACKWARD, deltaTime);
+  }
+  if (key == GLFW_KEY_A) {
+    camera.ProcessKeyboard(LEFT, deltaTime);
+  }
+  if (key == GLFW_KEY_D) {
+    camera.ProcessKeyboard(RIGHT, deltaTime);
+  }
 }
 
-// Текущее состояне
-void context_status() {
-  int status;
-  // VAO
-  std::cout << "-----------" << std::endl;
-  glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &status);
-  std::cout << "Current VAO: " << status << std::endl;
-  // VBO
-  glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &status);
-  std::cout << "Current VBO: " << status << std::endl;
-  // EBO
-  glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &status);
-  std::cout << "Current EBO: " << status << std::endl;
-  // Shader
-  glGetIntegerv(GL_CURRENT_PROGRAM, &status);
-  std::cout << "Current Shader: " << status << std::endl;
-  // Texture
-  glGetIntegerv(GL_TEXTURE_BINDING_2D, &status);
-  std::cout << "Current Texture: " << status << std::endl;
-  std::cout << "-----------" << std::endl;
+// Колбэк для обработки перемещения мыши
+void mouse_callback(GLFWwindow *window, double xPos, double yPos) {
+  if (firstMouse) {
+    lastX = xPos;
+    lastY = yPos;
+    firstMouse = false;
+  }
+
+  float xoffset = xPos - lastX;
+  float yoffset = lastY - yPos;
+  lastX = xPos;
+  lastY = yPos;
+
+  camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+// Колбэк для обработки прокрутки колеса мыши
+void scroll_callback(GLFWwindow *window, double xOffset, double yOffset) {
+  camera.ProcessMouseScroll(yOffset);
+}
+
+// Колбэк для обработки изменения размера окна
+void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
+  glViewport(0, 0, width, height);
 }
