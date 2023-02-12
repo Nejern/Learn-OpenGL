@@ -123,62 +123,57 @@ int main(void) {
 
   // Координаты вершин куба
   Vertex vertices[] = {
-    Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 0.0f),
-    Vertex(0.5f, -0.5f, -0.5f, 1.0f, 0.0f),
-    Vertex(0.5f, 0.5f, -0.5f, 1.0f, 1.0f),
-    Vertex(0.5f, 0.5f, -0.5f, 1.0f, 1.0f),
-    Vertex(-0.5f, 0.5f, -0.5f, 0.0f, 1.0f),
-    Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 0.0f),
+      Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 0.0f),
+      Vertex(0.5f, -0.5f, -0.5f, 1.0f, 0.0f),
+      Vertex(0.5f, 0.5f, -0.5f, 1.0f, 1.0f),
+      Vertex(0.5f, 0.5f, -0.5f, 1.0f, 1.0f),
+      Vertex(-0.5f, 0.5f, -0.5f, 0.0f, 1.0f),
+      Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 0.0f),
 
-    Vertex(-0.5f, -0.5f, 0.5f, 0.0f, 0.0f),
-    Vertex(0.5f, -0.5f, 0.5f, 1.0f, 0.0f),
-    Vertex(0.5f, 0.5f, 0.5f, 1.0f, 1.0f),
-    Vertex(0.5f, 0.5f, 0.5f, 1.0f, 1.0f),
-    Vertex(-0.5f, 0.5f, 0.5f, 0.0f, 1.0f),
-    Vertex(-0.5f, -0.5f, 0.5f, 0.0f, 0.0f),
+      Vertex(-0.5f, -0.5f, 0.5f, 0.0f, 0.0f),
+      Vertex(0.5f, -0.5f, 0.5f, 1.0f, 0.0f),
+      Vertex(0.5f, 0.5f, 0.5f, 1.0f, 1.0f),
+      Vertex(0.5f, 0.5f, 0.5f, 1.0f, 1.0f),
+      Vertex(-0.5f, 0.5f, 0.5f, 0.0f, 1.0f),
+      Vertex(-0.5f, -0.5f, 0.5f, 0.0f, 0.0f),
 
-    Vertex(-0.5f, 0.5f, 0.5f, 1.0f, 0.0f),
-    Vertex(-0.5f, 0.5f, -0.5f, 1.0f, 1.0f),
-    Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 1.0f),
-    Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 1.0f),
-    Vertex(-0.5f, -0.5f, 0.5f, 0.0f, 0.0f),
-    Vertex(-0.5f, 0.5f, 0.5f, 1.0f, 0.0f),
+      Vertex(-0.5f, 0.5f, 0.5f, 1.0f, 0.0f),
+      Vertex(-0.5f, 0.5f, -0.5f, 1.0f, 1.0f),
+      Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 1.0f),
+      Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 1.0f),
+      Vertex(-0.5f, -0.5f, 0.5f, 0.0f, 0.0f),
+      Vertex(-0.5f, 0.5f, 0.5f, 1.0f, 0.0f),
 
-    Vertex(0.5f, 0.5f, 0.5f, 1.0f, 0.0f),
-    Vertex(0.5f, 0.5f, -0.5f, 1.0f, 1.0f),
-    Vertex(0.5f, -0.5f, -0.5f, 0.0f, 1.0f),
-    Vertex(0.5f, -0.5f, -0.5f, 0.0f, 1.0f),
-    Vertex(0.5f, -0.5f, 0.5f, 0.0f, 0.0f),
-    Vertex(0.5f, 0.5f, 0.5f, 1.0f, 0.0f),
+      Vertex(0.5f, 0.5f, 0.5f, 1.0f, 0.0f),
+      Vertex(0.5f, 0.5f, -0.5f, 1.0f, 1.0f),
+      Vertex(0.5f, -0.5f, -0.5f, 0.0f, 1.0f),
+      Vertex(0.5f, -0.5f, -0.5f, 0.0f, 1.0f),
+      Vertex(0.5f, -0.5f, 0.5f, 0.0f, 0.0f),
+      Vertex(0.5f, 0.5f, 0.5f, 1.0f, 0.0f),
 
-    Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 1.0f),
-    Vertex(0.5f, -0.5f, -0.5f, 1.0f, 1.0f),
-    Vertex(0.5f, -0.5f, 0.5f, 1.0f, 0.0f),
-    Vertex(0.5f, -0.5f, 0.5f, 1.0f, 0.0f),
-    Vertex(-0.5f, -0.5f, 0.5f, 0.0f, 0.0f),
-    Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 1.0f),
+      Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 1.0f),
+      Vertex(0.5f, -0.5f, -0.5f, 1.0f, 1.0f),
+      Vertex(0.5f, -0.5f, 0.5f, 1.0f, 0.0f),
+      Vertex(0.5f, -0.5f, 0.5f, 1.0f, 0.0f),
+      Vertex(-0.5f, -0.5f, 0.5f, 0.0f, 0.0f),
+      Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 1.0f),
 
-    Vertex(-0.5f, 0.5f, -0.5f, 0.0f, 1.0f),
-    Vertex(0.5f, 0.5f, -0.5f, 1.0f, 1.0f),
-    Vertex(0.5f, 0.5f, 0.5f, 1.0f, 0.0f),
-    Vertex(0.5f, 0.5f, 0.5f, 1.0f, 0.0f),
-    Vertex(-0.5f, 0.5f, 0.5f, 0.0f, 0.0f),
-    Vertex(-0.5f, 0.5f, -0.5f, 0.0f, 1.0f),
+      Vertex(-0.5f, 0.5f, -0.5f, 0.0f, 1.0f),
+      Vertex(0.5f, 0.5f, -0.5f, 1.0f, 1.0f),
+      Vertex(0.5f, 0.5f, 0.5f, 1.0f, 0.0f),
+      Vertex(0.5f, 0.5f, 0.5f, 1.0f, 0.0f),
+      Vertex(-0.5f, 0.5f, 0.5f, 0.0f, 0.0f),
+      Vertex(-0.5f, 0.5f, -0.5f, 0.0f, 1.0f),
   };
 
-  // Индексы вершин
-  GLuint indices[] = {// Дальняя грань
-                      0, 1, 2, 2, 3, 0,
-                      // Передняя грань
-                      4, 5, 6, 6, 7, 4,
-                      // Верхняя грань
-                      1, 5, 6, 6, 2, 1,
-                      // Нижняя грань
-                      0, 4, 7, 7, 3, 0,
-                      // Левая грань
-                      0, 1, 5, 5, 4, 0,
-                      // Правая грань
-                      3, 2, 6, 6, 7, 3};
+  // Позиции кубов
+  glm::vec3 cubePos[] = {
+      glm::vec3(0.0f, 0.0f, 0.0f),    glm::vec3(2.0f, 5.0f, -15.0f),
+      glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
+      glm::vec3(2.4f, -0.4f, -3.5f),  glm::vec3(-1.7f, 3.0f, -7.5f),
+      glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
+      glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f),
+  };
 
   /* -----------------------[Буферы]----------------------- */
   // Объявление VAO, VBO, EBO
@@ -191,9 +186,6 @@ int main(void) {
 
   // Заполнение буфера вершин данными
   glNamedBufferData(VBO[0], sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  // Заполнение буфера индексов данными
-  glNamedBufferData(EBO[0], sizeof(indices), indices, GL_STATIC_DRAW);
 
   // Настройка VAO
   // Атрибут позиции - 0
@@ -229,10 +221,6 @@ int main(void) {
   // Текстурные координаты вершин
   glVertexArrayVertexBuffer(VAO[0], 1, VBO[0], 0, sizeof(Vertex));
 
-  // Установка буфера индексов
-  // Указание для конкретного VAO, что буфер индексов EBO
-  glVertexArrayElementBuffer(VAO[0], EBO[0]);
-
   /* -----------------------[Отрисовка]----------------------- */
   // Цвет очистки экрана
   glClearColor(29.f / 255, 32.f / 255, 33.f / 255, 1.f);
@@ -251,7 +239,6 @@ int main(void) {
   /* Матрицы */
   // Матрица модели
   glm::mat4 model = glm::mat4(1.f);
-  model = glm::rotate(model, glm::radians(-55.f), glm::vec3(1.f, 0.f, 0.f));
 
   // Матрица вида
   glm::mat4 view = glm::mat4(1.f);
@@ -262,6 +249,7 @@ int main(void) {
   projection = glm::perspective(glm::radians(45.f),
                                 (float)WIDTH / (float)HEIGHT, 0.1f, 100.f);
 
+  // Объявление переменных для передачи в шейдер
   GLint modelLoc = glGetUniformLocation(shader.Program, "model");
   GLint viewLoc = glGetUniformLocation(shader.Program, "view");
   GLint projectionLoc = glGetUniformLocation(shader.Program, "projection");
@@ -270,13 +258,16 @@ int main(void) {
   glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
   glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-  GLfloat realTime = 0.f;
-  GLfloat lastUpdeteTime = 0.f;
-  GLfloat deltaTime = 0.f;
+  // Переменные времени
+  long double realTime = 0.f;
+  long double lastUpdeteTime = 0.f;
+  double deltaTime = 0.f;
 
   // Depth test
   glEnable(GL_DEPTH_TEST);
 
+  // Привязка VAO
+  glBindVertexArray(VAO[0]);
   while (!glfwWindowShouldClose(window)) {
     // Обновление времени
     lastUpdeteTime = gameTime;
@@ -290,21 +281,23 @@ int main(void) {
     // Очистка буфера цвета
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Изменение матрицы трансформации
-    model = glm::rotate(model, glm::radians(30.f * deltaTime),
-                        glm::vec3(0.f, 0.f, 1.f));
-
     /* Отрисовка */
-    // Привязка VAO
-    glBindVertexArray(VAO[0]);
-    // Отрисовка примитивов
-    // Первая фигура
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    // Вторая фигура
 
-    // Отвязка VAO
-    glBindVertexArray(0);
+    // Цикл кубов
+    for (int i = 0; i < (int)sizeof(cubePos) / (int)sizeof(glm::vec3); i++) {
+      // Матрица модели
+      model = glm::mat4(1.f);
+      // Перемещение по позициям
+      model = glm::translate(model, cubePos[i]);
+      // Поворот
+      model = glm::rotate(model, glm::radians(20.f * (i + 1) * (float)gameTime),
+                          glm::vec3(1.f, 0.3f, 0.5f));
+      // Передача матрицы в шейдер
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+      // Отрисовка
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
 
     // Замена цветового буфера
     glfwSwapBuffers(window);
@@ -315,6 +308,8 @@ int main(void) {
       std::cout << "OpenGL error: " << error << std::endl;
     }
   }
+  // Отвязка VAO
+  glBindVertexArray(0);
 
   /* Очистка ресурсов */
   // Удаление текстур
@@ -343,6 +338,8 @@ void key_callback(GLFWwindow *window, int key, int scanCode, int action,
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, GL_TRUE);
   }
+
+  // Polygones mode
   if (key == GLFW_KEY_L && action == GLFW_PRESS) {
     if (l_flag == 0) {
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -352,11 +349,22 @@ void key_callback(GLFWwindow *window, int key, int scanCode, int action,
       l_flag = 0;
     }
   }
+
+  // Time scale
   if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
-    timeScale += 10.f;
+    timeScale += 1.f;
   }
   if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) {
-    timeScale -= 10.f;
+    timeScale -= 1.f;
+  }
+  if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) {
+    timeScale -= 0.1f;
+  }
+  if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) {
+    timeScale += 0.1f;
+  }
+  if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+    timeScale = 1.f;
   }
 }
 
