@@ -35,7 +35,7 @@ unsigned int genTexturePath(const char *path);
 
 // Константы
 // ---------
-const GLuint SCR_WIDTH = 800, SCR_HEIGHT = 600;
+const GLuint SCR_WIDTH = 1280, SCR_HEIGHT = 720;
 
 // Переменные камеры
 // -----------------
@@ -286,6 +286,11 @@ int main() {
   while (!glfwWindowShouldClose(window)) {
     // Обновление времени
     lastFrame = gameTime;
+    if (timeScale <= 0) {
+      timeScale = 0.000001;
+    } else if (timeScale > 1) {
+      timeScale = 1;
+    }
     gameTime += (glfwGetTime() - realTime) * timeScale;
     realTime = glfwGetTime();
     deltaTime = gameTime - lastFrame;
@@ -353,6 +358,7 @@ void glfwErrorCallback(int error, const char *description) {
   std::cerr << "Error: " << description << std::endl;
 }
 // Колбэк обработки ввода
+bool l_flag = 0;
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods) {
   // Закрытие окна
@@ -360,13 +366,42 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
     glfwSetWindowShouldClose(window, true);
   // Управление камерой
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    camera.ProcessKeyboard(FORWARD, deltaTime);
+    camera.ProcessKeyboard(FORWARD, deltaTime / timeScale);
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    camera.ProcessKeyboard(BACKWARD, deltaTime);
+    camera.ProcessKeyboard(BACKWARD, deltaTime / timeScale);
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    camera.ProcessKeyboard(LEFT, deltaTime);
+    camera.ProcessKeyboard(LEFT, deltaTime / timeScale);
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    camera.ProcessKeyboard(RIGHT, deltaTime);
+    camera.ProcessKeyboard(RIGHT, deltaTime / timeScale);
+
+  // time scale
+  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+    timeScale += 0.1;
+  }
+  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+    timeScale -= 0.1;
+  }
+  if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+    timeScale -= 0.01;
+  }
+  if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+    timeScale += 0.01;
+  }
+  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS){
+    timeScale = 1;
+  }
+
+  // Polygon mode
+  if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS){
+    if (l_flag){
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      l_flag = 0;
+    }
+    else{
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+      l_flag = 1;
+    }
+  }
 }
 // Колбэк обработки движения мыши
 void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
