@@ -44,6 +44,11 @@ bool keys[1024];
 GLfloat lastX = SCR_WIDTH / 2.0f;
 GLfloat lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
+// Управление камерой
+bool w_flag = 0;
+bool a_flag = 0;
+bool s_flag = 0;
+bool d_flag = 0;
 
 // Глобальные переменные времени
 // -----------------------------
@@ -66,6 +71,7 @@ int main() {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   // Отключение возможности изменения размеров окна
   glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
   // Режим совместимости с MacOS
 #ifdef __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // Для Mac OS
@@ -295,6 +301,20 @@ int main() {
     realTime = glfwGetTime();
     deltaTime = gameTime - lastFrame;
 
+    // Движение камеры
+    if (w_flag) {
+      camera.ProcessKeyboard(FORWARD, deltaTime / timeScale);
+    }
+    if (s_flag) {
+      camera.ProcessKeyboard(BACKWARD, deltaTime / timeScale);
+    }
+    if (a_flag) {
+      camera.ProcessKeyboard(LEFT, deltaTime / timeScale);
+    }
+    if (d_flag) {
+      camera.ProcessKeyboard(RIGHT, deltaTime / timeScale);
+    }
+
     // Очистка буфера цвета и буфера глубины
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -362,42 +382,49 @@ bool l_flag = 0;
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods) {
   // Закрытие окна
-  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
   // Управление камерой
-  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    camera.ProcessKeyboard(FORWARD, deltaTime / timeScale);
-  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    camera.ProcessKeyboard(BACKWARD, deltaTime / timeScale);
-  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    camera.ProcessKeyboard(LEFT, deltaTime / timeScale);
-  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    camera.ProcessKeyboard(RIGHT, deltaTime / timeScale);
+  if (key == GLFW_KEY_W && action == GLFW_PRESS)
+    w_flag = 1;
+  if (key == GLFW_KEY_W && action == GLFW_RELEASE)
+    w_flag = 0;
+  if (key == GLFW_KEY_A && action == GLFW_PRESS)
+    a_flag = 1;
+  if (key == GLFW_KEY_A && action == GLFW_RELEASE)
+    a_flag = 0;
+  if (key == GLFW_KEY_S && action == GLFW_PRESS)
+    s_flag = 1;
+  if (key == GLFW_KEY_S && action == GLFW_RELEASE)
+    s_flag = 0;
+  if (key == GLFW_KEY_D && action == GLFW_PRESS)
+    d_flag = 1;
+  if (key == GLFW_KEY_D && action == GLFW_RELEASE)
+    d_flag = 0;
 
   // time scale
-  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+  if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
     timeScale += 0.1;
   }
-  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+  if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) {
     timeScale -= 0.1;
   }
-  if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+  if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) {
     timeScale -= 0.01;
   }
-  if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+  if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) {
     timeScale += 0.01;
   }
-  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS){
+  if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
     timeScale = 1;
   }
 
   // Polygon mode
-  if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS){
-    if (l_flag){
+  if (key == GLFW_KEY_L && action == GLFW_PRESS) {
+    if (l_flag) {
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
       l_flag = 0;
-    }
-    else{
+    } else {
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
       l_flag = 1;
     }
