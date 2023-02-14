@@ -17,36 +17,45 @@
 #include "Headers/Camera.h" // Класс камеры
 #include "Headers/Shader.h" // Класс шейдера
 
-// Прототипы функций
-// -----------------
+// Прототипы функций колбэков
+// --------------------------
+
 // Функция обработки ошибок GLFW
 void glfwErrorCallback(int error, const char *description);
+
 // Функция обработки изменения размеров окна
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+
 // Функция обработки нажатия клавиш
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mode);
+
 // Функция обработки движения мыши
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
+
 // Функция обработки колеса мыши
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
+
+// Прототипы остальных функций
+// ---------------------------
+
 // Генерация текстуры
 unsigned int genTexturePath(const char *path);
+
 // Движение камеры
 void doMovement();
 
-// Константы
-// ---------
+// Константы размера окна
+// -----------------------
 const GLuint SCR_WIDTH = 1280, SCR_HEIGHT = 720;
 
 // Переменные камеры
 // -----------------
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
-bool keys[1024];
-GLfloat lastX = SCR_WIDTH / 2.0f;
-GLfloat lastY = SCR_HEIGHT / 2.0f;
-bool firstMouse = true;
-// Управление камерой
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f)); // Камера
+GLfloat lastX = SCR_WIDTH / 2.0f; // Последняя позиция мыши по оси X
+GLfloat lastY = SCR_HEIGHT / 2.0f; // Последняя позиция мыши по оси Y
+bool firstMouse = true; // Первое движение мыши
+/* Управление камерой */
 bool w_flag = 0;
 bool a_flag = 0;
 bool s_flag = 0;
@@ -64,13 +73,16 @@ double timeScale = 1.0f; // Масштаб игрового времени
 int main() {
   // Инициализация и конфигурация GLFW
   // ---------------------------------
-  glfwInit(); // Инициализация GLFW
-  // Настройка GLFW
+  glfwInit();
+
+  /* Настройка GLFW */
   // Мажорная и минорная версии OpenGL
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // Мажорная версия OpenGL
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6); // Минорная версия OpenGL
+
   // Ядро профиля OpenGL
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
   // Отключение возможности изменения размеров окна
   glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
@@ -129,8 +141,10 @@ int main() {
 
   // Шейдеры
   // -------
-  Shader lightShader("./Shaders/lightVertexShader.glsl",
-                     "./Shaders/lightFragmentShader.glsl");
+  // Шейдер для отрисовки куба
+  Shader objShader("./Shaders/lightVertexShader.glsl",
+                   "./Shaders/lightFragmentShader.glsl");
+  // Шейдер для отрисовки источника света
   Shader lampShader("./Shaders/lampVertexShader.glsl",
                     "./Shaders/lampFragmentShader.glsl");
 
@@ -172,46 +186,50 @@ int main() {
   // --------------
   glm::vec3 lampPos(0.f, 1.0f, 0.f);
   float radius = 1.0f;
+  glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
 
-  // Буфер и массив вершин для куба
-  // ------------------------------
-  // Создание буфера вершин и массива вершин
-  unsigned int VBO, objVAO;
-  glCreateVertexArrays(1, &objVAO); // Создаем VAO
-  glCreateBuffers(1, &VBO);         // Создаем VBO
-
+  // Буфер вершин для куба
+  // ---------------------
+  unsigned int cubeVBO;
+  glCreateBuffers(1, &cubeVBO);
   // Заполняем буфер вершин
-  glNamedBufferStorage(VBO, sizeof(vertices), vertices, 0);
+  glNamedBufferStorage(cubeVBO, sizeof(vertices), vertices, 0);
 
-  // Включаем и устанавливаем атрибуты вершин
+  // Буфер массива вершин для объекта
+  // --------------------------------
+  /* Создаем VAO */
+  unsigned int objVAO;
+  glCreateVertexArrays(1, &objVAO); // Создаем VAO
+
+  /* Включаем и устанавливаем атрибуты вершин */
   // Позиция вершин
-  glEnableVertexArrayAttrib(objVAO, 0);
-  glVertexArrayAttribBinding(objVAO, 0, 0);
   glVertexArrayAttribFormat(objVAO, 0, 3, GL_FLOAT, GL_FALSE, 0);
+  glVertexArrayAttribBinding(objVAO, 0, 0);
+  glEnableVertexArrayAttrib(objVAO, 0);
   // Нормали
-  glEnableVertexArrayAttrib(objVAO, 1);
-  glVertexArrayAttribBinding(objVAO, 1, 0);
   glVertexArrayAttribFormat(objVAO, 1, 3, GL_FLOAT, GL_FALSE,
                             3 * sizeof(float));
+  glVertexArrayAttribBinding(objVAO, 1, 0);
+  glEnableVertexArrayAttrib(objVAO, 1);
   // Связываем атрибуты с текущим VBO
-  glVertexArrayVertexBuffer(objVAO, 0, VBO, 0, 6 * sizeof(float));
+  glVertexArrayVertexBuffer(objVAO, 0, cubeVBO, 0, 6 * sizeof(float));
 
   // Массив вершин для источника света
   // ---------------------------------
-  // Создание массива вершин
+  // Создаем VAO
   unsigned int lampVAO;
   glCreateVertexArrays(1, &lampVAO);
 
   // Включаем и устанавливаем атрибуты вершин
   // Позиция вершин
-  glEnableVertexArrayAttrib(lampVAO, 0);
-  glVertexArrayAttribBinding(lampVAO, 0, 0);
   glVertexArrayAttribFormat(lampVAO, 0, 3, GL_FLOAT, GL_FALSE, 0);
+  glVertexArrayAttribBinding(lampVAO, 0, 0);
+  glEnableVertexArrayAttrib(lampVAO, 0);
   // Связываем атрибуты с текущим VBO
-  glVertexArrayVertexBuffer(lampVAO, 0, VBO, 0, 6 * sizeof(float));
+  glVertexArrayVertexBuffer(lampVAO, 0, cubeVBO, 0, 6 * sizeof(float));
 
-  // Подготовка к рендерингу
-  // -----------------------
+  // Матрицы
+  // -------
   // Матрица модели
   glm::mat4 model = glm::mat4(1.0f);
   // Матрица вида
@@ -219,53 +237,66 @@ int main() {
   // Матрица проекции
   glm::mat4 projection = glm::mat4(1.0f);
 
+  // Подготовка к рендерингу
+  // -----------------------
   // Цвет очистки экрана
   glClearColor(29.f / 255, 32.f / 255, 33.f / 255, 1.f);
   // Включение теста глубины
   glEnable(GL_DEPTH_TEST);
 
+  /* Передача данных в шейдеры */
+
+  // Шейдер объекта
   // Привязка шейдера
-  lightShader.use();
+  objShader.use();
   // Установка цвета объекта
-  lightShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+  objShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
   // Установка цвета источника света
-  lightShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+  objShader.setVec3("lightColor", lightColor);
+
+  // Шейдер источника света
+  // Привязка шейдера
+  lampShader.use();
+  // Установка цвета источника света
+  lampShader.setVec3("lightColor", lightColor);
 
   // Цикл рендеринга
   // ---------------
   while (!glfwWindowShouldClose(window)) {
     // Обновление времени
-    lastFrame = gameTime;
+    // ------------------
+    lastFrame = gameTime; // Запоминаем игровое время предыдущего кадра
+    // Ограничение коэффициента времени
     if (timeScale <= 0) {
       timeScale = 0.000001;
     } else if (timeScale > 1) {
       timeScale = 1;
     }
-    gameTime += (glfwGetTime() - realTime) * timeScale;
-    realTime = glfwGetTime();
-    deltaTime = gameTime - lastFrame;
+    gameTime +=
+        (glfwGetTime() - realTime) * timeScale; // Обновляем игровое время
+    realTime = glfwGetTime(); // Запоминаем реальное время
+    deltaTime = gameTime - lastFrame; // Вычисляем время между кадрами
 
-    // Движение камеры
-    doMovement();
-
-    // Очистка буфера цвета и буфера глубины
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // Обновление матрицы вида
+    // Обновление матриц
+    // -----------------
+    // Матрица вида
     view = camera.GetViewMatrix();
-    // Обновление матрицы проекции
+    // Матрица проекции
     projection =
         glm::perspective(glm::radians(camera.Zoom),
                          (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
     // Отрисовка
     // ---------
-    // Источник света
-    // --------------
+    // Очистка буфера цвета и буфера глубины
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    /* Источник света */
     // Привязка шейдера
     lampShader.use();
     // Прикрепление VAO
     glBindVertexArray(lampVAO);
+
     // Позиция источника света
     lampPos = glm::vec3(sin(gameTime) * radius,
                         (sin(gameTime) + cos(gameTime)) * radius,
@@ -274,65 +305,77 @@ int main() {
     model = glm::mat4(1.0f);
     model = glm::translate(model, lampPos);
     model = glm::scale(model, glm::vec3(0.2f));
+
     // Применение матрицы модели
     lampShader.setMat4("model", model);
-    // Применение матрицы вида и проекции
+    // Применение матрицы вида
     lampShader.setMat4("view", view);
+    // Применение матрицы проекции
     lampShader.setMat4("projection", projection);
-    // Отрисовка источника света
+
+    // Отрисовка примитивов
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
-    // Объекты
-    // -------
+    /* Объект */
     // Привязка шейдера
-    lightShader.use();
+    objShader.use();
     // Прикрепление VAO
     glBindVertexArray(objVAO);
+
     // Матрица модели
     model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
+
     // Применение матрицы модели
-    lightShader.setMat4("model", model);
-    // Применение матрицы вида и проекции
-    lightShader.setMat4("view", view);
-    lightShader.setMat4("projection", projection);
+    objShader.setMat4("model", model);
+    // Применение матрицы вида
+    objShader.setMat4("view", view);
+    // Применение матрицы проекции
+    objShader.setMat4("projection", projection);
+
     // Применение позиции источника света
-    lightShader.setVec3("lightPos", lampPos);
+    objShader.setVec3("lightPos", lampPos);
     // Применение матрицы нормали
-    lightShader.setMat3("normalMatrix", glm::transpose(glm::inverse(model)));
+    objShader.setMat3("normalMatrix", glm::transpose(glm::inverse(model)));
+
     // Отрисовка объектов
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
-    // Проверка и вызов событий
+    /* Проверка и вызов событий */
+    // Проверка колбэков
     glfwPollEvents();
 
+    // Движение камеры
+    doMovement();
+
     // Замена буферов кадра
+    // --------------------
     glfwSwapBuffers(window);
   }
-  // Отвязка VAO
-  glBindVertexArray(0);
 
-  // Очистка ресурсов
-  // ----------------
-  // Удаление шейдерной программы
-  lightShader.deleteProgram();
+  // Очистка ресурсов и завершение работы
+  // ------------------------------------
   // Удаление VAO
   glDeleteVertexArrays(1, &objVAO);
+  glDeleteVertexArrays(1, &lampVAO);
   // Удаление VBO
-  glDeleteBuffers(1, &VBO);
+  glDeleteBuffers(1, &cubeVBO);
   // Освобождение ресурсов GLFW
   glfwTerminate();
+
+  // Завершение программы
   return 0;
 }
 
-// Реализация функций
-// ------------------
+// Реализация функций колбэков
+// ---------------------------
 // Колбэк обработки ошибок
 void glfwErrorCallback(int error, const char *description) {
   std::cerr << "Error: " << description << std::endl;
 }
+
 // Колбэк обработки ввода
-bool l_flag = 0;
+bool l_flag = 0; // Флаг нажатия кнопки L
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods) {
   // Закрытие окна
@@ -388,6 +431,7 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
     }
   }
 }
+
 // Колбэк обработки движения мыши
 void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
   if (firstMouse) {
@@ -403,14 +447,19 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
 
   camera.ProcessMouseMovement(xoffset, yoffset);
 }
+
 // Колбэк обработки скролла мыши
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
   camera.ProcessMouseScroll(yoffset);
 }
+
 // Колбэк обработки изменения размера окна
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
 }
+
+// Остальные функции
+// -----------------
 // Движение камеры
 void doMovement() {
   if (w_flag)
@@ -422,6 +471,7 @@ void doMovement() {
   if (d_flag)
     camera.ProcessKeyboard(RIGHT, deltaTime / timeScale);
 }
+
 // Генереция текстуры
 unsigned int genTexturePath(const char *path) {
   unsigned int ID;
