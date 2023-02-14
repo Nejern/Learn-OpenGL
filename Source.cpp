@@ -138,29 +138,45 @@ int main() {
   // -------
   // Координаты вершин
   float vertices[] = {
-      -0.5f, -0.5f, -0.5f, 0.5f,  -0.5f, -0.5f, 0.5f,  0.5f,  -0.5f,
-      0.5f,  0.5f,  -0.5f, -0.5f, 0.5f,  -0.5f, -0.5f, -0.5f, -0.5f,
+      -0.5f, -0.5f, -0.5f, 0.0f,  0.0f,  -1.0f, 0.5f,  -0.5f, -0.5f,
+      0.0f,  0.0f,  -1.0f, 0.5f,  0.5f,  -0.5f, 0.0f,  0.0f,  -1.0f,
+      0.5f,  0.5f,  -0.5f, 0.0f,  0.0f,  -1.0f, -0.5f, 0.5f,  -0.5f,
+      0.0f,  0.0f,  -1.0f, -0.5f, -0.5f, -0.5f, 0.0f,  0.0f,  -1.0f,
 
-      -0.5f, -0.5f, 0.5f,  0.5f,  -0.5f, 0.5f,  0.5f,  0.5f,  0.5f,
-      0.5f,  0.5f,  0.5f,  -0.5f, 0.5f,  0.5f,  -0.5f, -0.5f, 0.5f,
+      -0.5f, -0.5f, 0.5f,  0.0f,  0.0f,  1.0f,  0.5f,  -0.5f, 0.5f,
+      0.0f,  0.0f,  1.0f,  0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+      0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  -0.5f, 0.5f,  0.5f,
+      0.0f,  0.0f,  1.0f,  -0.5f, -0.5f, 0.5f,  0.0f,  0.0f,  1.0f,
 
-      -0.5f, 0.5f,  0.5f,  -0.5f, 0.5f,  -0.5f, -0.5f, -0.5f, -0.5f,
-      -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f,  -0.5f, 0.5f,  0.5f,
+      -0.5f, 0.5f,  0.5f,  -1.0f, 0.0f,  0.0f,  -0.5f, 0.5f,  -0.5f,
+      -1.0f, 0.0f,  0.0f,  -0.5f, -0.5f, -0.5f, -1.0f, 0.0f,  0.0f,
+      -0.5f, -0.5f, -0.5f, -1.0f, 0.0f,  0.0f,  -0.5f, -0.5f, 0.5f,
+      -1.0f, 0.0f,  0.0f,  -0.5f, 0.5f,  0.5f,  -1.0f, 0.0f,  0.0f,
 
-      0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  -0.5f, 0.5f,  -0.5f, -0.5f,
-      0.5f,  -0.5f, -0.5f, 0.5f,  -0.5f, 0.5f,  0.5f,  0.5f,  0.5f,
+      0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.5f,  0.5f,  -0.5f,
+      1.0f,  0.0f,  0.0f,  0.5f,  -0.5f, -0.5f, 1.0f,  0.0f,  0.0f,
+      0.5f,  -0.5f, -0.5f, 1.0f,  0.0f,  0.0f,  0.5f,  -0.5f, 0.5f,
+      1.0f,  0.0f,  0.0f,  0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-      -0.5f, -0.5f, -0.5f, 0.5f,  -0.5f, -0.5f, 0.5f,  -0.5f, 0.5f,
-      0.5f,  -0.5f, 0.5f,  -0.5f, -0.5f, 0.5f,  -0.5f, -0.5f, -0.5f,
+      -0.5f, -0.5f, -0.5f, 0.0f,  -1.0f, 0.0f,  0.5f,  -0.5f, -0.5f,
+      0.0f,  -1.0f, 0.0f,  0.5f,  -0.5f, 0.5f,  0.0f,  -1.0f, 0.0f,
+      0.5f,  -0.5f, 0.5f,  0.0f,  -1.0f, 0.0f,  -0.5f, -0.5f, 0.5f,
+      0.0f,  -1.0f, 0.0f,  -0.5f, -0.5f, -0.5f, 0.0f,  -1.0f, 0.0f,
 
-      -0.5f, 0.5f,  -0.5f, 0.5f,  0.5f,  -0.5f, 0.5f,  0.5f,  0.5f,
-      0.5f,  0.5f,  0.5f,  -0.5f, 0.5f,  0.5f,  -0.5f, 0.5f,  -0.5f};
+      -0.5f, 0.5f,  -0.5f, 0.0f,  1.0f,  0.0f,  0.5f,  0.5f,  -0.5f,
+      0.0f,  1.0f,  0.0f,  0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+      0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  -0.5f, 0.5f,  0.5f,
+      0.0f,  1.0f,  0.0f,  -0.5f, 0.5f,  -0.5f, 0.0f,  1.0f,  0.0f};
 
-  // Буфер вершин
-  // ------------
+  // Источник света
+  // --------------
+  glm::vec3 lampPos(1.2f, 1.0f, 2.0f);
+
+  // Буфер и массив вершин для куба
+  // ------------------------------
   // Создание буфера вершин и массива вершин
-  unsigned int VBO, lightVAO;
-  glCreateVertexArrays(1, &lightVAO); // Создаем VAO
+  unsigned int VBO, objVAO;
+  glCreateVertexArrays(1, &objVAO); // Создаем VAO
   glCreateBuffers(1, &VBO);           // Создаем VBO
 
   // Заполняем буфер вершин
@@ -168,12 +184,29 @@ int main() {
 
   // Включаем и устанавливаем атрибуты вершин
   // Позиция вершин
-  glEnableVertexArrayAttrib(lightVAO, 0);
-  glVertexArrayAttribBinding(lightVAO, 0, 0);
-  glVertexArrayAttribFormat(lightVAO, 0, 3, GL_FLOAT, GL_FALSE, 0);
-
+  glEnableVertexArrayAttrib(objVAO, 0);
+  glVertexArrayAttribBinding(objVAO, 0, 0);
+  glVertexArrayAttribFormat(objVAO, 0, 3, GL_FLOAT, GL_FALSE, 0);
+  // Нормали
+  glEnableVertexArrayAttrib(objVAO, 1);
+  glVertexArrayAttribBinding(objVAO, 1, 0);
+  glVertexArrayAttribFormat(objVAO, 1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float));
   // Связываем атрибуты с текущим VBO
-  glVertexArrayVertexBuffer(lightVAO, 0, VBO, 0, 3 * sizeof(float));
+  glVertexArrayVertexBuffer(objVAO, 0, VBO, 0, 6 * sizeof(float));
+
+  // Массив вершин для источника света
+  // ---------------------------------
+  // Создание массива вершин
+  unsigned int lampVAO;
+  glCreateVertexArrays(1, &lampVAO);
+
+  // Включаем и устанавливаем атрибуты вершин
+  // Позиция вершин
+  glEnableVertexArrayAttrib(lampVAO, 0);
+  glVertexArrayAttribBinding(lampVAO, 0, 0);
+  glVertexArrayAttribFormat(lampVAO, 0, 3, GL_FLOAT, GL_FALSE, 0);
+  // Связываем атрибуты с текущим VBO
+  glVertexArrayVertexBuffer(lampVAO, 0, VBO, 0, 6 * sizeof(float));
 
   // Подготовка к рендерингу
   // -----------------------
@@ -188,9 +221,6 @@ int main() {
   glClearColor(29.f / 255, 32.f / 255, 33.f / 255, 1.f);
   // Включение теста глубины
   glEnable(GL_DEPTH_TEST);
-
-  // Привязка VAO
-  glBindVertexArray(lightVAO);
 
   // Привязка шейдера
   lightShader.use();
@@ -232,9 +262,11 @@ int main() {
     // --------------
     // Привязка шейдера
     lampShader.use();
+    // Прикрепление VAO
+    glBindVertexArray(lampVAO);
     // Матрица модели
     model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(1.2f, 1.0f, 2.0f));
+    model = glm::translate(model, lampPos);
     model = glm::scale(model, glm::vec3(0.2f));
     // Применение матрицы модели
     lampShader.setMat4("model", model);
@@ -248,6 +280,8 @@ int main() {
     // -------
     // Привязка шейдера
     lightShader.use();
+    // Прикрепление VAO
+    glBindVertexArray(objVAO);
     // Матрица модели
     model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
@@ -256,6 +290,8 @@ int main() {
     // Применение матрицы вида и проекции
     lightShader.setMat4("view", view);
     lightShader.setMat4("projection", projection);
+    // Применение позиции источника света
+    lightShader.setVec3("lightPos", lampPos);
     // Отрисовка объектов
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -273,7 +309,7 @@ int main() {
   // Удаление шейдерной программы
   lightShader.deleteProgram();
   // Удаление VAO
-  glDeleteVertexArrays(1, &lightVAO);
+  glDeleteVertexArrays(1, &objVAO);
   // Удаление VBO
   glDeleteBuffers(1, &VBO);
   // Освобождение ресурсов GLFW
