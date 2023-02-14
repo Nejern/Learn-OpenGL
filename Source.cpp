@@ -131,7 +131,7 @@ int main() {
   // -------
   Shader lightShader("./Shaders/lightVertexShader.glsl",
                      "./Shaders/lightFragmentShader.glsl");
-  Shader lampShader("./Shaders/lightVertexShader.glsl",
+  Shader lampShader("./Shaders/lampVertexShader.glsl",
                     "./Shaders/lampFragmentShader.glsl");
 
   // Вершины
@@ -170,14 +170,15 @@ int main() {
 
   // Источник света
   // --------------
-  glm::vec3 lampPos(1.2f, 1.0f, 2.0f);
+  glm::vec3 lampPos(0.f, 1.0f, 0.f);
+  float radius = 1.0f;
 
   // Буфер и массив вершин для куба
   // ------------------------------
   // Создание буфера вершин и массива вершин
   unsigned int VBO, objVAO;
   glCreateVertexArrays(1, &objVAO); // Создаем VAO
-  glCreateBuffers(1, &VBO);           // Создаем VBO
+  glCreateBuffers(1, &VBO);         // Создаем VBO
 
   // Заполняем буфер вершин
   glNamedBufferStorage(VBO, sizeof(vertices), vertices, 0);
@@ -190,7 +191,8 @@ int main() {
   // Нормали
   glEnableVertexArrayAttrib(objVAO, 1);
   glVertexArrayAttribBinding(objVAO, 1, 0);
-  glVertexArrayAttribFormat(objVAO, 1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float));
+  glVertexArrayAttribFormat(objVAO, 1, 3, GL_FLOAT, GL_FALSE,
+                            3 * sizeof(float));
   // Связываем атрибуты с текущим VBO
   glVertexArrayVertexBuffer(objVAO, 0, VBO, 0, 6 * sizeof(float));
 
@@ -264,6 +266,10 @@ int main() {
     lampShader.use();
     // Прикрепление VAO
     glBindVertexArray(lampVAO);
+    // Позиция источника света
+    lampPos = glm::vec3(sin(gameTime) * radius,
+                        (sin(gameTime) + cos(gameTime)) * radius,
+                        cos(gameTime) * radius);
     // Матрица модели
     model = glm::mat4(1.0f);
     model = glm::translate(model, lampPos);
@@ -292,6 +298,8 @@ int main() {
     lightShader.setMat4("projection", projection);
     // Применение позиции источника света
     lightShader.setVec3("lightPos", lampPos);
+    // Применение матрицы нормали
+    lightShader.setMat3("normalMatrix", glm::transpose(glm::inverse(model)));
     // Отрисовка объектов
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
