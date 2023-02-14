@@ -32,6 +32,8 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 // Генерация текстуры
 unsigned int genTexturePath(const char *path);
+// Движение камеры
+void doMovement();
 
 // Константы
 // ---------
@@ -127,152 +129,54 @@ int main() {
 
   // Шейдеры
   // -------
-  Shader ourShader("./Shaders/vertexShader.glsl",
-                   "./Shaders/fragmentShader.glsl");
+  Shader lightShader("./Shaders/lightVertexShader.glsl",
+                     "./Shaders/lightFragmentShader.glsl");
+  Shader lampShader("./Shaders/lightVertexShader.glsl",
+                    "./Shaders/lampFragmentShader.glsl");
 
   // Вершины
   // -------
   // Координаты вершин
   float vertices[] = {
-      // Позиции           // Координаты текстур
-      // Дальняя грань
-      // Первый треугольник
-      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // Левый нижний угол
-      0.5f, -0.5f, -0.5f, 1.0f, 0.0f,  // Правый нижний угол
-      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,   // Правый верхний угол
-      // Второй треугольник
-      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,   // Правый верхний угол
-      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,  // Левый верхний угол
-      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // Левый нижний угол
+      -0.5f, -0.5f, -0.5f, 0.5f,  -0.5f, -0.5f, 0.5f,  0.5f,  -0.5f,
+      0.5f,  0.5f,  -0.5f, -0.5f, 0.5f,  -0.5f, -0.5f, -0.5f, -0.5f,
 
-      // Передняя грань
-      // Первый треугольник
-      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // Левый нижний угол
-      0.5f, -0.5f, 0.5f, 1.0f, 0.0f,  // Правый нижний угол
-      0.5f, 0.5f, 0.5f, 1.0f, 1.0f,   // Правый верхний угол
-      // Второй треугольник
-      0.5f, 0.5f, 0.5f, 1.0f, 1.0f,   // Правый верхний угол
-      -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,  // Левый верхний угол
-      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // Левый нижний угол
+      -0.5f, -0.5f, 0.5f,  0.5f,  -0.5f, 0.5f,  0.5f,  0.5f,  0.5f,
+      0.5f,  0.5f,  0.5f,  -0.5f, 0.5f,  0.5f,  -0.5f, -0.5f, 0.5f,
 
-      // Левая грань
-      // Первый треугольник
-      -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // Правый верхний угол
-      -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,  // Правый нижний угол
-      -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // Левый нижний угол
-      // Второй треугольник
-      -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // Левый нижний угол
-      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,  // Левый верхний угол
-      -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // Правый верхний угол
+      -0.5f, 0.5f,  0.5f,  -0.5f, 0.5f,  -0.5f, -0.5f, -0.5f, -0.5f,
+      -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f,  -0.5f, 0.5f,  0.5f,
 
-      // Правая грань
-      // Первый треугольник
-      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // Правый верхний угол
-      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,  // Правый нижний угол
-      0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // Левый нижний угол
-      // Второй треугольник
-      0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // Левый нижний угол
-      0.5f, -0.5f, 0.5f, 0.0f, 0.0f,  // Левый верхний угол
-      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // Правый верхний угол
+      0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  -0.5f, 0.5f,  -0.5f, -0.5f,
+      0.5f,  -0.5f, -0.5f, 0.5f,  -0.5f, 0.5f,  0.5f,  0.5f,  0.5f,
 
-      // Нижняя грань
-      // Первый треугольник
-      -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // Левый верхний угол
-      0.5f, -0.5f, -0.5f, 1.0f, 1.0f,  // Правый верхний угол
-      0.5f, -0.5f, 0.5f, 1.0f, 0.0f,   // Правый нижний угол
-      0.5f, -0.5f, 0.5f, 1.0f, 0.0f,   // Правый нижний угол
-      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,  // Левый нижний угол
-      -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // Левый верхний угол
+      -0.5f, -0.5f, -0.5f, 0.5f,  -0.5f, -0.5f, 0.5f,  -0.5f, 0.5f,
+      0.5f,  -0.5f, 0.5f,  -0.5f, -0.5f, 0.5f,  -0.5f, -0.5f, -0.5f,
 
-      // Верхняя грань
-      // Первый треугольник
-      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, // Левый верхний угол
-      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,  // Правый верхний угол
-      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // Правый нижний угол
-      // Второй треугольник
-      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // Правый нижний угол
-      -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,  // Левый нижний угол
-      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, // Левый верхний угол
-  };
-
-  // Координаты кубов
-  glm::vec3 cubePos[] = {
-      glm::vec3(0.0f, 0.0f, 0.0f),    glm::vec3(2.0f, 5.0f, -15.0f),
-      glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
-      glm::vec3(2.4f, -0.4f, -3.5f),  glm::vec3(-1.7f, 3.0f, -7.5f),
-      glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
-      glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f),
-      glm::vec3(0.f, 0.0f, 6.f), glm::vec3(0.f, 3.0f, 15.f)};
+      -0.5f, 0.5f,  -0.5f, 0.5f,  0.5f,  -0.5f, 0.5f,  0.5f,  0.5f,
+      0.5f,  0.5f,  0.5f,  -0.5f, 0.5f,  0.5f,  -0.5f, 0.5f,  -0.5f};
 
   // Буфер вершин
   // ------------
   // Создание буфера вершин и массива вершин
-  unsigned int VBO, VAO;
-  glCreateVertexArrays(1, &VAO); // Создаем VAO
-  glCreateBuffers(1, &VBO);      // Создаем VBO
+  unsigned int VBO, lightVAO;
+  glCreateVertexArrays(1, &lightVAO); // Создаем VAO
+  glCreateBuffers(1, &VBO);           // Создаем VBO
 
   // Заполняем буфер вершин
   glNamedBufferStorage(VBO, sizeof(vertices), vertices, 0);
 
   // Включаем и устанавливаем атрибуты вершин
   // Позиция вершин
-  glEnableVertexArrayAttrib(VAO, 0);
-  glVertexArrayAttribBinding(VAO, 0, 0);
-  glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE, 0);
-  // Текстурные координаты
-  glEnableVertexArrayAttrib(VAO, 1);
-  glVertexArrayAttribBinding(VAO, 1, 0);
-  glVertexArrayAttribFormat(VAO, 1, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(float));
+  glEnableVertexArrayAttrib(lightVAO, 0);
+  glVertexArrayAttribBinding(lightVAO, 0, 0);
+  glVertexArrayAttribFormat(lightVAO, 0, 3, GL_FLOAT, GL_FALSE, 0);
 
   // Связываем атрибуты с текущим VBO
-  glVertexArrayVertexBuffer(VAO, 0, VBO, 0, 5 * sizeof(float));
-
-  // Загружаем и создаем текстуры
-  // ----------------------------
-  // Текстура 1
-  // ----------
-  // Чтение изображения и создание текстуры
-  unsigned int texture_container = genTexturePath("./Textures/container.jpg");
-
-  // Настройка текстуры
-  // Установка повторения текстуры по оси S
-  glTextureParameteri(texture_container, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-  // Установка повторения текстуры по оси T
-  glTextureParameteri(texture_container, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-  // Установка фильтра минимизации
-  glTextureParameteri(texture_container, GL_TEXTURE_MIN_FILTER,
-                      GL_LINEAR_MIPMAP_LINEAR);
-  // Установка фильтра магнификации
-  glTextureParameteri(texture_container, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  // Текстура 2
-  // ----------
-  // Чтение изображения и создание текстуры
-  unsigned int texture_emoji = genTexturePath("./Textures/emoji.png");
-  // Настройка текстуры
-  // Установка повторения текстуры по оси S
-  glTextureParameteri(texture_emoji, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-  // Установка повторения текстуры по оси T
-  glTextureParameteri(texture_emoji, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-  // Установка фильтра минимизации
-  glTextureParameteri(texture_emoji, GL_TEXTURE_MIN_FILTER,
-                      GL_LINEAR_MIPMAP_LINEAR);
-  // Установка фильтра магнификации
-  glTextureParameteri(texture_emoji, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glVertexArrayVertexBuffer(lightVAO, 0, VBO, 0, 3 * sizeof(float));
 
   // Подготовка к рендерингу
   // -----------------------
-  // Прменяем шейдерную программу
-  ourShader.use();
-
-  // Привязываем текстуры к текстурным блокам
-  glBindTextureUnit(0, texture_container);
-  glBindTextureUnit(1, texture_emoji);
-
-  // Устанавливаем текстуры в шейдер
-  ourShader.setInt("texture1", 0);
-  ourShader.setInt("texture2", 1);
-
   // Матрица модели
   glm::mat4 model = glm::mat4(1.0f);
   // Матрица вида
@@ -286,7 +190,14 @@ int main() {
   glEnable(GL_DEPTH_TEST);
 
   // Привязка VAO
-  glBindVertexArray(VAO);
+  glBindVertexArray(lightVAO);
+
+  // Привязка шейдера
+  lightShader.use();
+  // Установка цвета объекта
+  lightShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+  // Установка цвета источника света
+  lightShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
   // Цикл рендеринга
   // ---------------
@@ -303,18 +214,7 @@ int main() {
     deltaTime = gameTime - lastFrame;
 
     // Движение камеры
-    if (w_flag) {
-      camera.ProcessKeyboard(FORWARD, deltaTime / timeScale);
-    }
-    if (s_flag) {
-      camera.ProcessKeyboard(BACKWARD, deltaTime / timeScale);
-    }
-    if (a_flag) {
-      camera.ProcessKeyboard(LEFT, deltaTime / timeScale);
-    }
-    if (d_flag) {
-      camera.ProcessKeyboard(RIGHT, deltaTime / timeScale);
-    }
+    doMovement();
 
     // Очистка буфера цвета и буфера глубины
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -326,26 +226,38 @@ int main() {
         glm::perspective(glm::radians(camera.Zoom),
                          (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
-    // Применение матрицы вида и проекции
-    ourShader.setMat4("view", view);
-    ourShader.setMat4("projection", projection);
-
     // Отрисовка
-    // Цикл кубов
-    for (int i = 0; i < (int)sizeof(cubePos) / (int)sizeof(glm::vec3); i++) {
-      // Матрица модели
-      model = glm::mat4(1.f);
-      // Перемещение по позициям
-      model = glm::translate(model, cubePos[i]);
-      // Поворот
-      model = glm::rotate(model, glm::radians(20.f * (i + 1) * (float)gameTime),
-                          glm::vec3(1.f, 0.3f, 0.5f));
-      // Передача матрицы в шейдер
-      ourShader.setMat4("model", model);
+    // ---------
+    // Источник света
+    // --------------
+    // Привязка шейдера
+    lampShader.use();
+    // Матрица модели
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(1.2f, 1.0f, 2.0f));
+    model = glm::scale(model, glm::vec3(0.2f));
+    // Применение матрицы модели
+    lampShader.setMat4("model", model);
+    // Применение матрицы вида и проекции
+    lampShader.setMat4("view", view);
+    lampShader.setMat4("projection", projection);
+    // Отрисовка источника света
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
-      // Отрисовка примитивов
-      glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
+    // Объекты
+    // -------
+    // Привязка шейдера
+    lightShader.use();
+    // Матрица модели
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
+    // Применение матрицы модели
+    lightShader.setMat4("model", model);
+    // Применение матрицы вида и проекции
+    lightShader.setMat4("view", view);
+    lightShader.setMat4("projection", projection);
+    // Отрисовка объектов
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
     // Проверка и вызов событий
     glfwPollEvents();
@@ -358,13 +270,10 @@ int main() {
 
   // Очистка ресурсов
   // ----------------
-  // Удаление текстур
-  glDeleteTextures(1, &texture_container);
-  glDeleteTextures(1, &texture_emoji);
   // Удаление шейдерной программы
-  ourShader.deleteProgram();
+  lightShader.deleteProgram();
   // Удаление VAO
-  glDeleteVertexArrays(1, &VAO);
+  glDeleteVertexArrays(1, &lightVAO);
   // Удаление VBO
   glDeleteBuffers(1, &VBO);
   // Освобождение ресурсов GLFW
@@ -457,6 +366,17 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
 // Колбэк обработки изменения размера окна
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
+}
+// Движение камеры
+void doMovement() {
+  if (w_flag)
+    camera.ProcessKeyboard(FORWARD, deltaTime / timeScale);
+  if (s_flag)
+    camera.ProcessKeyboard(BACKWARD, deltaTime / timeScale);
+  if (a_flag)
+    camera.ProcessKeyboard(LEFT, deltaTime / timeScale);
+  if (d_flag)
+    camera.ProcessKeyboard(RIGHT, deltaTime / timeScale);
 }
 // Генереция текстуры
 unsigned int genTexturePath(const char *path) {
