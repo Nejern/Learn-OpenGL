@@ -410,13 +410,17 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
     timeScale -= 0.1;
   }
   if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) {
-    timeScale -= 0.01;
-  }
-  if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) {
     timeScale += 0.01;
   }
+  if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) {
+    timeScale -= 0.01;
+  }
   if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
-    timeScale = 1;
+    if (timeScale != 1) {
+      timeScale = 1;
+    } else {
+      timeScale = 0;
+    }
   }
 
   // Polygon mode
