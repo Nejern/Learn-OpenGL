@@ -326,7 +326,6 @@ int main() {
 
     // Матрица модели
     model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
 
     // Применение матрицы модели
     objShader.setMat4("model", model);
@@ -338,7 +337,8 @@ int main() {
     // Применение позиции источника света
     objShader.setVec3("lightPos", lampPos);
     // Применение матрицы нормали
-    objShader.setMat3("normalMatrix", glm::transpose(glm::inverse(model)));
+    objShader.setMat3("normalMatrix",
+                      glm::transpose(glm::inverse(model * view)));
 
     // Отрисовка объектов
     glDrawArrays(GL_TRIANGLES, 0, 36);
