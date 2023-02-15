@@ -9,8 +9,8 @@
 enum Camera_Movement { FORWARD, BACKWARD, LEFT, RIGHT };
 
 // Значения камеры по умолчанию
-const float YAW = -90.0f;
-const float PITCH = 0.0f;
+const float YAW = -90.0f; // Угол поворота вокруг оси Y (Рыскание)
+const float PITCH = 0.0f; // Угол поворота вокруг оси X (Тангаж)
 const float SPEED = 2.5f;
 const float SENSITIVTY = 0.1f;
 const float ZOOM = 45.0f;
@@ -29,18 +29,16 @@ public:
   float Pitch; // Угол поворота вокруг оси X (тангаж)
 
   // Камерные параметры
-  float MovementSpeed; // Скорость перемещения камеры
-  float MouseSensitivity; // Чувствительность мыши
-  float Zoom;             // Уровень зума
-  float MaxZoom = 45.f;          // Максимальный уровень зума
-  float MinZoom = 1.0f;          // Минимальный уровень зума
+  float MovementSpeed = SPEED; // Скорость перемещения камеры
+  float MouseSensitivity = SENSITIVTY; // Чувствительность мыши
+  float Zoom = ZOOM;                   // Уровень зума
+  float MaxZoom = 45.f; // Максимальный уровень зума
+  float MinZoom = 1.0f; // Минимальный уровень зума
 
   // Конструктор с векторами
   Camera(glm::vec3 position = glm::vec3(0.f, 0.f, 0.f),
          glm::vec3 up = glm::vec3(0.f, 1.f, 0.f), float yaw = YAW,
-         float pitch = PITCH)
-      : Front(glm::vec3(0.f, 0.f, -1.f)), MovementSpeed(SPEED),
-        MouseSensitivity(SENSITIVTY), Zoom(ZOOM) {
+         float pitch = PITCH) {
     Position = position;
     WorldUp = up;
     Yaw = yaw;
@@ -49,9 +47,7 @@ public:
   }
   // Конструктор с скалярами
   Camera(float posX, float posY, float posZ, float upX, float upY, float upZ,
-         float yaw, float pitch)
-      : Front(glm::vec3(0.f, 0.f, -1.f)), MovementSpeed(SPEED),
-        MouseSensitivity(SENSITIVTY), Zoom(ZOOM) {
+         float yaw, float pitch) {
     Position = glm::vec3(posX, posY, posZ);
     WorldUp = glm::vec3(upX, upY, upZ);
     Yaw = yaw;
@@ -61,9 +57,39 @@ public:
 
   // Функция возвращающая матрицу вида
   glm::mat4 GetViewMatrix() {
-    return glm::lookAt(Position, Position + Front, Up);
-    // glm::lookAt определяет матрицу вида
-    // Параметры: позиция камеры, точка, куда смотрит камера, вектор верха
+    // Первое что нам нужно сделать это получить позицию камеры
+    // Позиция = Position
+
+    // Затем нам нужно получить вектор направления камеры
+    // Вектор направления = Front
+
+    // Затем нам нужно получить вектор верха камеры
+    // Вектор верха = Up
+
+    // Затем нам нужно получить вектор правой стороны камеры
+    // Вектор правой стороны = Right
+
+    // Затем нам нужно получить матрицу сдвига
+    glm::mat4 translation = glm::mat4(1.0f);
+    translation[3][0] = -Position.x;
+    translation[3][1] = -Position.y;
+    translation[3][2] = -Position.z;
+
+    // Затем нам нужно получить матрицу поворота
+    glm::mat4 rotation = glm::mat4(1.0f);
+    rotation[0][0] = Right.x;
+    rotation[1][0] = Right.y;
+    rotation[2][0] = Right.z;
+    rotation[0][1] = Up.x;
+    rotation[1][1] = Up.y;
+    rotation[2][1] = Up.z;
+    rotation[0][2] = -Front.x;
+    rotation[1][2] = -Front.y;
+    rotation[2][2] = -Front.z;
+
+    // Затем нам нужно перемножить матрицу поворота и матрицу сдвига
+    // Матрица вида = rotation * translation
+    return rotation * translation;
   }
 
   // Функция обработки ввода
