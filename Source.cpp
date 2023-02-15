@@ -45,6 +45,9 @@ unsigned int genTexturePath(const char *path);
 // Движение камеры
 void doMovement();
 
+// Проверка коэффициента времени
+void checkTimeScale();
+
 // Константы размера окна
 // -----------------------
 const GLuint SCR_WIDTH = 1280, SCR_HEIGHT = 720;
@@ -323,12 +326,6 @@ int main() {
     // Обновление времени
     // ------------------
     lastFrame = gameTime; // Запоминаем игровое время предыдущего кадра
-    // Ограничение коэффициента времени
-    if (timeScale <= 0) {
-      timeScale = 0.000001;
-    } else if (timeScale > 1) {
-      timeScale = 1;
-    }
     gameTime +=
         (glfwGetTime() - realTime) * timeScale; // Обновляем игровое время
     realTime = glfwGetTime(); // Запоминаем реальное время
@@ -411,7 +408,8 @@ int main() {
     // Отрисовка объектов
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
-    /* Проверка и вызов событий */
+    // Проверка и вызов событий
+    // ------------------------
     // Проверка колбэков
     glfwPollEvents();
 
@@ -469,21 +467,25 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
   // time scale
   if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
     timeScale += 0.1;
+    checkTimeScale();
   }
   if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) {
     timeScale -= 0.1;
+    checkTimeScale();
   }
   if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) {
     timeScale += 0.01;
+    checkTimeScale();
   }
   if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) {
     timeScale -= 0.01;
+    checkTimeScale();
   }
   if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
-    if (timeScale != 1) {
-      timeScale = 1;
+    if (timeScale != 0.000001) {
+      timeScale = 0.000001;
     } else {
-      timeScale = 0;
+      timeScale = 1;
     }
   }
 
@@ -537,6 +539,15 @@ void doMovement() {
     camera.ProcessKeyboard(LEFT, deltaTime / timeScale);
   if (d_flag)
     camera.ProcessKeyboard(RIGHT, deltaTime / timeScale);
+}
+
+// Проверка коэффициента времени
+void checkTimeScale() {
+  if (timeScale <= 0) {
+    timeScale = 0.000001;
+  } else if (timeScale > 1) {
+    timeScale = 1;
+  }
 }
 
 // Генереция текстуры
