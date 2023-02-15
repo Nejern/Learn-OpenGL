@@ -269,6 +269,9 @@ int main() {
   glTextureParameteri(containerTexture, GL_TEXTURE_MIN_FILTER,
                       GL_LINEAR_MIPMAP_LINEAR);
   glTextureParameteri(containerTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  // Привязка
+  glBindTextureUnit(0, containerTexture);
+
   /* Смайлик */
   unsigned int emojiTexture = genTexturePath("./Textures/emoji.png");
   // Настойка
@@ -277,6 +280,8 @@ int main() {
   glTextureParameteri(emojiTexture, GL_TEXTURE_MIN_FILTER,
                       GL_LINEAR_MIPMAP_LINEAR);
   glTextureParameteri(emojiTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  // Привязка
+  glBindTextureUnit(1, emojiTexture);
 
   // Матрицы
   // -------
@@ -295,6 +300,7 @@ int main() {
   glEnable(GL_DEPTH_TEST);
 
   /* Передача данных в шейдеры */
+
   // Шейдер объекта
   // Привязка шейдера
   objShader.use();
@@ -339,6 +345,20 @@ int main() {
         glm::perspective(glm::radians(camera.Zoom),
                          (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
+    // Обработка логики
+    // ----------------
+    /* Источник света */
+    // Позиция источника света
+    lampPos = glm::vec3(sin(gameTime) * radius,
+                        (sin(gameTime) + cos(gameTime)) * radius,
+                        cos(gameTime) * radius);
+    // Параметры источника света
+    lightColor.x = sin(gameTime * 2.0f) * 0.5f + 0.5f;
+    lightColor.y = sin(gameTime * 0.7f) * 0.5f + 0.5f;
+    lightColor.z = sin(gameTime * 1.3f) * 0.5f + 0.5f;
+    glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
+    glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
+
     // Отрисовка
     // ---------
     // Очистка буфера цвета и буфера глубины
@@ -350,21 +370,17 @@ int main() {
     // Прикрепление VAO
     glBindVertexArray(lampVAO);
 
-    // Позиция источника света
-    lampPos = glm::vec3(sin(gameTime) * radius,
-                        (sin(gameTime) + cos(gameTime)) * radius,
-                        cos(gameTime) * radius);
     // Матрица модели
     model = glm::mat4(1.0f);
     model = glm::translate(model, lampPos);
     model = glm::scale(model, glm::vec3(0.2f));
-
-    // Применение матрицы модели
     lampShader.setMat4("model", model);
-    // Применение матрицы вида
+    // Матрица вида
     lampShader.setMat4("view", view);
-    // Применение матрицы проекции
+    // Матрица проекции
     lampShader.setMat4("projection", projection);
+    // Применение цвета источника света
+    lampShader.setVec3("lightColor", lightColor);
 
     // Отрисовка примитивов
     glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -377,19 +393,16 @@ int main() {
 
     // Матрица модели
     model = glm::mat4(1.0f);
-
-    // Применение матрицы модели
     objShader.setMat4("model", model);
-    // Применение матрицы вида
+    // Матрица вида
     objShader.setMat4("view", view);
-    // Применение матрицы проекции
+    // Матрица проекции
     objShader.setMat4("projection", projection);
 
     // Применение позиции источника света
     objShader.setVec3("lightPos", lampPos);
-    // Применение параметров источника света
-    objShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
-    objShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
+    objShader.setVec3("light.ambient", ambientColor);
+    objShader.setVec3("light.diffuse", diffuseColor);
     objShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
     // Применение матрицы нормали
     objShader.setMat3("normalMatrix",
