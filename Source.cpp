@@ -242,15 +242,10 @@ int main() {
                             3 * sizeof(float));
   glVertexArrayAttribBinding(objVAO, 1, 0);
   glEnableVertexArrayAttrib(objVAO, 1);
-  // Текстурные координаты
-  glVertexArrayAttribFormat(objVAO, 2, 2, GL_FLOAT, GL_FALSE,
-                            6 * sizeof(float));
-  glVertexArrayAttribBinding(objVAO, 2, 0);
-  glEnableVertexArrayAttrib(objVAO, 2);
   // Связываем атрибуты с текущим VBO
   glVertexArrayVertexBuffer(objVAO, 0, cubeVBO, 0, 8 * sizeof(float));
 
-  // Массив вершин для источника света
+  // Буфер массива вершин для источника света
   // ---------------------------------
   // Создаем VAO
   unsigned int lampVAO;
@@ -299,19 +294,16 @@ int main() {
   // Включение теста глубины
   glEnable(GL_DEPTH_TEST);
 
-  /* Привязка текстур */
-  glBindTextureUnit(0, containerTexture);
-  glBindTextureUnit(1, emojiTexture);
-
   /* Передача данных в шейдеры */
   // Шейдер объекта
   // Привязка шейдера
   objShader.use();
-  // Установка цвета источника света
-  objShader.setVec3("lightColor", lightColor);
   // Установка текстурных юнитов
-  objShader.setInt("texture1", 0);
-  objShader.setInt("texture2", 1);
+  // Установка материала
+  objShader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+  objShader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+  objShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+  objShader.setFloat("material.shininess", 32.0f);
 
   // Шейдер источника света
   // Привязка шейдера
@@ -395,6 +387,10 @@ int main() {
 
     // Применение позиции источника света
     objShader.setVec3("lightPos", lampPos);
+    // Применение параметров источника света
+    objShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+    objShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
+    objShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
     // Применение матрицы нормали
     objShader.setMat3("normalMatrix",
                       glm::transpose(glm::inverse(model * view)));
