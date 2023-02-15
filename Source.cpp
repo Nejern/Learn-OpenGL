@@ -152,35 +152,66 @@ int main() {
   // -------
   // Координаты вершин
   float vertices[] = {
-      -0.5f, -0.5f, -0.5f, 0.0f,  0.0f,  -1.0f, 0.5f,  -0.5f, -0.5f,
-      0.0f,  0.0f,  -1.0f, 0.5f,  0.5f,  -0.5f, 0.0f,  0.0f,  -1.0f,
-      0.5f,  0.5f,  -0.5f, 0.0f,  0.0f,  -1.0f, -0.5f, 0.5f,  -0.5f,
-      0.0f,  0.0f,  -1.0f, -0.5f, -0.5f, -0.5f, 0.0f,  0.0f,  -1.0f,
+      // Дальняя грань
+      // Первый треугольник
+      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // Левый нижний угол
+      0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, // Правый нижний угол
+      0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, // Правый верхний угол
+      // Второй треугольник
+      0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, // Правый верхний угол
+      -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, // Левый верхний угол
+      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // Левый нижний угол
 
-      -0.5f, -0.5f, 0.5f,  0.0f,  0.0f,  1.0f,  0.5f,  -0.5f, 0.5f,
-      0.0f,  0.0f,  1.0f,  0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-      0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  -0.5f, 0.5f,  0.5f,
-      0.0f,  0.0f,  1.0f,  -0.5f, -0.5f, 0.5f,  0.0f,  0.0f,  1.0f,
+      // Ближняя грань
+      // Первый треугольник
+      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // Левый нижний угол
+      0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // Правый нижний угол
+      0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // Правый верхний угол
+      // Второй треугольник
+      0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // Правый верхний угол
+      -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, // Левый верхний угол
+      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // Левый нижний угол
 
-      -0.5f, 0.5f,  0.5f,  -1.0f, 0.0f,  0.0f,  -0.5f, 0.5f,  -0.5f,
-      -1.0f, 0.0f,  0.0f,  -0.5f, -0.5f, -0.5f, -1.0f, 0.0f,  0.0f,
-      -0.5f, -0.5f, -0.5f, -1.0f, 0.0f,  0.0f,  -0.5f, -0.5f, 0.5f,
-      -1.0f, 0.0f,  0.0f,  -0.5f, 0.5f,  0.5f,  -1.0f, 0.0f,  0.0f,
+      // Левая грань
+      // Первый треугольник
+      -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // Правый верхний угол
+      -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // Левый верхний угол
+      -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // Левый нижний угол
+      // Второй треугольник
+      -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // Левый нижний угол
+      -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // Правый нижний угол
+      -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // Правый верхний угол
 
-      0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.5f,  0.5f,  -0.5f,
-      1.0f,  0.0f,  0.0f,  0.5f,  -0.5f, -0.5f, 1.0f,  0.0f,  0.0f,
-      0.5f,  -0.5f, -0.5f, 1.0f,  0.0f,  0.0f,  0.5f,  -0.5f, 0.5f,
-      1.0f,  0.0f,  0.0f,  0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+      // Правая грань
+      // Первый треугольник
+      0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // Правый верхний угол
+      0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // Левый верхний угол
+      0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // Левый нижний угол
+      // Второй треугольник
+      0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // Левый нижний угол
+      0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // Правый нижний угол
+      0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // Правый верхний угол
 
-      -0.5f, -0.5f, -0.5f, 0.0f,  -1.0f, 0.0f,  0.5f,  -0.5f, -0.5f,
-      0.0f,  -1.0f, 0.0f,  0.5f,  -0.5f, 0.5f,  0.0f,  -1.0f, 0.0f,
-      0.5f,  -0.5f, 0.5f,  0.0f,  -1.0f, 0.0f,  -0.5f, -0.5f, 0.5f,
-      0.0f,  -1.0f, 0.0f,  -0.5f, -0.5f, -0.5f, 0.0f,  -1.0f, 0.0f,
+      // Нижняя грань
+      // Первый треугольник
+      -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // Левый нижний угол
+      0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f, // Правый нижний угол
+      0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, // Правый верхний угол
+      // Второй треугольник
+      0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, // Правый верхний угол
+      -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, // Левый верхний угол
+      -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // Левый нижний угол
 
-      -0.5f, 0.5f,  -0.5f, 0.0f,  1.0f,  0.0f,  0.5f,  0.5f,  -0.5f,
-      0.0f,  1.0f,  0.0f,  0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-      0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  -0.5f, 0.5f,  0.5f,
-      0.0f,  1.0f,  0.0f,  -0.5f, 0.5f,  -0.5f, 0.0f,  1.0f,  0.0f};
+      // Верхняя грань
+      // Первый треугольник
+      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // Левый нижний угол
+      0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // Правый нижний угол
+      0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // Правый верхний угол
+      // Второй треугольник
+      0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // Правый верхний угол
+      -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // Левый верхний угол
+      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f // Левый нижний угол
+  };
 
   // Источник света
   // --------------
@@ -211,8 +242,13 @@ int main() {
                             3 * sizeof(float));
   glVertexArrayAttribBinding(objVAO, 1, 0);
   glEnableVertexArrayAttrib(objVAO, 1);
+  // Текстурные координаты
+  glVertexArrayAttribFormat(objVAO, 2, 2, GL_FLOAT, GL_FALSE,
+                            6 * sizeof(float));
+  glVertexArrayAttribBinding(objVAO, 2, 0);
+  glEnableVertexArrayAttrib(objVAO, 2);
   // Связываем атрибуты с текущим VBO
-  glVertexArrayVertexBuffer(objVAO, 0, cubeVBO, 0, 6 * sizeof(float));
+  glVertexArrayVertexBuffer(objVAO, 0, cubeVBO, 0, 8 * sizeof(float));
 
   // Массив вершин для источника света
   // ---------------------------------
@@ -226,7 +262,26 @@ int main() {
   glVertexArrayAttribBinding(lampVAO, 0, 0);
   glEnableVertexArrayAttrib(lampVAO, 0);
   // Связываем атрибуты с текущим VBO
-  glVertexArrayVertexBuffer(lampVAO, 0, cubeVBO, 0, 6 * sizeof(float));
+  glVertexArrayVertexBuffer(lampVAO, 0, cubeVBO, 0, 8 * sizeof(float));
+
+  // Текстуры
+  // --------
+  /* Контейнер */
+  unsigned int containerTexture = genTexturePath("./Textures/container.jpg");
+  // Настойка
+  glTextureParameteri(containerTexture, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTextureParameteri(containerTexture, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  glTextureParameteri(containerTexture, GL_TEXTURE_MIN_FILTER,
+                      GL_LINEAR_MIPMAP_LINEAR);
+  glTextureParameteri(containerTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  /* Смайлик */
+  unsigned int emojiTexture = genTexturePath("./Textures/emoji.png");
+  // Настойка
+  glTextureParameteri(emojiTexture, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTextureParameteri(emojiTexture, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  glTextureParameteri(emojiTexture, GL_TEXTURE_MIN_FILTER,
+                      GL_LINEAR_MIPMAP_LINEAR);
+  glTextureParameteri(emojiTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   // Матрицы
   // -------
@@ -244,15 +299,19 @@ int main() {
   // Включение теста глубины
   glEnable(GL_DEPTH_TEST);
 
-  /* Передача данных в шейдеры */
+  /* Привязка текстур */
+  glBindTextureUnit(0, containerTexture);
+  glBindTextureUnit(1, emojiTexture);
 
+  /* Передача данных в шейдеры */
   // Шейдер объекта
   // Привязка шейдера
   objShader.use();
-  // Установка цвета объекта
-  objShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
   // Установка цвета источника света
   objShader.setVec3("lightColor", lightColor);
+  // Установка текстурных юнитов
+  objShader.setInt("texture1", 0);
+  objShader.setInt("texture2", 1);
 
   // Шейдер источника света
   // Привязка шейдера
@@ -476,6 +535,9 @@ unsigned int genTexturePath(const char *path) {
   unsigned int ID;
   // Создание и привязка имени текстуры
   glCreateTextures(GL_TEXTURE_2D, 1, &ID);
+
+  // Настройка чтения текстуры
+  stbi_set_flip_vertically_on_load(true);
 
   // Загрузка изображения, создание текстуры и генерация мип-уровней
   int width, height, nrChannels;
