@@ -71,6 +71,8 @@ long double gameTime = 0.0f; // Игровое время
 double deltaTime = 0.0f; // Игровое время между текущим кадром и предыдущим
 long double lastFrame = 0.0f; // Игровое время последнего кадра
 double timeScale = 1.0f; // Масштаб игрового времени
+double timeScaleMax = 1.0f; // Максимальный масштаб игрового времени
+double timeScaleMin = 0.0000001f; // Минимальный масштаб игрового времени
 
 // Точка входа в программу
 int main() {
@@ -286,6 +288,12 @@ int main() {
   // Привязка
   glBindTextureUnit(1, emojiTexture);
 
+  // Настройка камеры
+  // ----------------
+  camera.MinZoom = 0.5f;  // Минимальное значение зума
+  camera.MaxZoom = 45.0f; // Максимальное значение зума
+  camera.Zoom = camera.MaxZoom; // Зум по умолчанию
+
   // Матрицы
   // -------
   // Матрица модели
@@ -340,7 +348,7 @@ int main() {
     // Матрица проекции
     projection =
         glm::perspective(glm::radians(camera.Zoom),
-                         (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+                         (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
 
     // Обработка логики
     // ----------------
@@ -482,8 +490,8 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
     checkTimeScale();
   }
   if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
-    if (timeScale != 0.000001) {
-      timeScale = 0.000001;
+    if (timeScale != timeScaleMin) {
+      timeScale = timeScaleMin;
     } else {
       timeScale = 1;
     }
@@ -509,8 +517,8 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
     firstMouse = false;
   }
 
-  float xoffset = xpos - lastX;
-  float yoffset = lastY - ypos;
+  float xoffset = (xpos - lastX) * (camera.Zoom / 45.0f);
+  float yoffset = (lastY - ypos) * (camera.Zoom / 45.0f);
   lastX = xpos;
   lastY = ypos;
 
@@ -544,9 +552,9 @@ void doMovement() {
 // Проверка коэффициента времени
 void checkTimeScale() {
   if (timeScale <= 0) {
-    timeScale = 0.000001;
-  } else if (timeScale > 1) {
-    timeScale = 1;
+    timeScale = timeScaleMin;
+  } else if (timeScale > timeScaleMax) {
+    timeScale = timeScaleMax;
   }
 }
 

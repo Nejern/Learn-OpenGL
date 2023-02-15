@@ -32,6 +32,8 @@ public:
   float MovementSpeed; // Скорость перемещения камеры
   float MouseSensitivity; // Чувствительность мыши
   float Zoom;             // Уровень зума
+  float MaxZoom = 45.f;          // Максимальный уровень зума
+  float MinZoom = 1.0f;          // Минимальный уровень зума
 
   // Конструктор с векторами
   Camera(glm::vec3 position = glm::vec3(0.f, 0.f, 0.f),
@@ -100,12 +102,12 @@ public:
 
   // Функция обработки ввода колеса мыши
   void ProcessMouseScroll(float yoffset) {
-    if (Zoom >= 1.0f && Zoom <= 45.0f)
+    if (Zoom >= MinZoom && Zoom <= MaxZoom)
       Zoom -= yoffset;
-    if (Zoom <= 1.0f)
-      Zoom = 1.0f;
-    if (Zoom >= 45.0f)
-      Zoom = 45.0f;
+    if (Zoom <= MinZoom)
+      Zoom = MinZoom;
+    if (Zoom >= MaxZoom)
+      Zoom = MaxZoom;
   }
 
 private:
