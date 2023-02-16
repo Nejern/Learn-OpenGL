@@ -283,10 +283,13 @@ int main() {
   glBindTextureUnit(0, containerTexture);
 
   /* Смайлик */
-  unsigned int containerBorderTexture = genTexturePath("./Textures/container2_specular.png");
+  unsigned int containerBorderTexture =
+      genTexturePath("./Textures/container2_specular.png");
   // Настойка
-  glTextureParameteri(containerBorderTexture, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-  glTextureParameteri(containerBorderTexture, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  glTextureParameteri(containerBorderTexture, GL_TEXTURE_WRAP_S,
+                      GL_MIRRORED_REPEAT);
+  glTextureParameteri(containerBorderTexture, GL_TEXTURE_WRAP_T,
+                      GL_MIRRORED_REPEAT);
   glTextureParameteri(containerBorderTexture, GL_TEXTURE_MIN_FILTER,
                       GL_LINEAR_MIPMAP_LINEAR);
   glTextureParameteri(containerBorderTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
