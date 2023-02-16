@@ -283,15 +283,15 @@ int main() {
   glBindTextureUnit(0, containerTexture);
 
   /* Смайлик */
-  unsigned int emojiTexture = genTexturePath("./Textures/emoji.png");
+  unsigned int containerBorderTexture = genTexturePath("./Textures/container2_specular.png");
   // Настойка
-  glTextureParameteri(emojiTexture, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-  glTextureParameteri(emojiTexture, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-  glTextureParameteri(emojiTexture, GL_TEXTURE_MIN_FILTER,
+  glTextureParameteri(containerBorderTexture, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTextureParameteri(containerBorderTexture, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  glTextureParameteri(containerBorderTexture, GL_TEXTURE_MIN_FILTER,
                       GL_LINEAR_MIPMAP_LINEAR);
-  glTextureParameteri(emojiTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTextureParameteri(containerBorderTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   // Привязка
-  glBindTextureUnit(1, emojiTexture);
+  glBindTextureUnit(1, containerBorderTexture);
 
   // Настройка камеры
   // ----------------
@@ -323,7 +323,7 @@ int main() {
   // Установка текстурных юнитов
   // Установка материала
   objShader.setInt("material.diffuse", 0);
-  objShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+  objShader.setInt("material.specular", 1);
   objShader.setFloat("material.shininess", 64.0f);
 
   // Шейдер источника света
