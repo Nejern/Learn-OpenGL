@@ -247,6 +247,11 @@ int main() {
                             3 * sizeof(float));
   glVertexArrayAttribBinding(objVAO, 1, 0);
   glEnableVertexArrayAttrib(objVAO, 1);
+  // Текстурные координаты
+  glVertexArrayAttribFormat(objVAO, 2, 2, GL_FLOAT, GL_FALSE,
+                            6 * sizeof(float));
+  glVertexArrayAttribBinding(objVAO, 2, 0);
+  glEnableVertexArrayAttrib(objVAO, 2);
   // Связываем атрибуты с текущим VBO
   glVertexArrayVertexBuffer(objVAO, 0, cubeVBO, 0, 8 * sizeof(float));
 
@@ -267,7 +272,7 @@ int main() {
   // Текстуры
   // --------
   /* Контейнер */
-  unsigned int containerTexture = genTexturePath("./Textures/container.jpg");
+  unsigned int containerTexture = genTexturePath("./Textures/container2.png");
   // Настойка
   glTextureParameteri(containerTexture, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
   glTextureParameteri(containerTexture, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
@@ -317,10 +322,9 @@ int main() {
   objShader.use();
   // Установка текстурных юнитов
   // Установка материала
-  objShader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
-  objShader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+  objShader.setInt("material.diffuse", 0);
   objShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
-  objShader.setFloat("material.shininess", 32.0f);
+  objShader.setFloat("material.shininess", 64.0f);
 
   // Шейдер источника света
   // Привязка шейдера
@@ -358,9 +362,6 @@ int main() {
                         (sin(gameTime) + cos(gameTime)) * radius,
                         cos(gameTime) * radius);
     // Параметры источника света
-    lightColor.x = sin(gameTime * 2.0f) * 0.5f + 0.5f;
-    lightColor.y = sin(gameTime * 0.7f) * 0.5f + 0.5f;
-    lightColor.z = sin(gameTime * 1.3f) * 0.5f + 0.5f;
     glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
     glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
 
