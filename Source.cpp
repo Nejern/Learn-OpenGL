@@ -282,7 +282,7 @@ int main() {
   // Привязка
   glBindTextureUnit(0, containerTexture);
 
-  /* Смайлик */
+  /* Металическая обводка контейнера */
   unsigned int containerBorderTexture =
       genTexturePath("./Textures/container2_specular.png");
   // Настойка
@@ -295,6 +295,19 @@ int main() {
   glTextureParameteri(containerBorderTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   // Привязка
   glBindTextureUnit(1, containerBorderTexture);
+
+  /* Матрица */
+  unsigned int matrixTexture = genTexturePath("./Textures/matrix.jpg");
+  // Настойка
+  glTextureParameteri(matrixTexture, GL_TEXTURE_WRAP_S,
+                      GL_MIRRORED_REPEAT);
+  glTextureParameteri(matrixTexture, GL_TEXTURE_WRAP_T,
+                      GL_MIRRORED_REPEAT);
+  glTextureParameteri(matrixTexture, GL_TEXTURE_MIN_FILTER,
+                      GL_LINEAR_MIPMAP_LINEAR);
+  glTextureParameteri(matrixTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  // Привязка
+  glBindTextureUnit(2, matrixTexture);
 
   // Настройка камеры
   // ----------------
@@ -327,6 +340,7 @@ int main() {
   // Установка материала
   objShader.setInt("material.diffuse", 0);
   objShader.setInt("material.specular", 1);
+  objShader.setInt("material.emission", 2);
   objShader.setFloat("material.shininess", 64.0f);
 
   // Шейдер источника света
