@@ -383,6 +383,7 @@ int main() {
     // Параметры источника света
     glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
     glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
+    glm::vec3 specularColor = lightColor * glm::vec3(1.f);
 
     // Отрисовка
     // ---------
@@ -428,7 +429,7 @@ int main() {
     objShader.setVec3("lightPos", lampPos);
     objShader.setVec3("light.ambient", ambientColor);
     objShader.setVec3("light.diffuse", diffuseColor);
-    objShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+    objShader.setVec3("light.specular", specularColor);
     // Применение матрицы нормали
     objShader.setMat3("normalMatrix",
                       glm::transpose(glm::inverse(model * view)));
