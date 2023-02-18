@@ -9,6 +9,10 @@
 // STB
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
+// imgui
+#include "../include/imgui/imgui.h"
+#include "../include/imgui/imgui_impl_glfw.h"
+#include "../include/imgui/imgui_impl_opengl3.h"
 // Остальные библиотеки
 #include <cmath>
 #include <iostream>
@@ -57,6 +61,7 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f)); // Камера
 GLfloat lastX = SCR_WIDTH / 2.0f; // Последняя позиция мыши по оси X
 GLfloat lastY = SCR_HEIGHT / 2.0f; // Последняя позиция мыши по оси Y
 bool firstMouse = true; // Первое движение мыши
+bool inputFlag = 1;
 /* Управление камерой */
 bool w_flag = 0;
 bool a_flag = 0;
@@ -69,7 +74,7 @@ long double realTime = 0.0f; // Реальное время с начала за
 long double gameTime = 0.0f; // Игровое время
 double deltaTime = 0.0f; // Игровое время между текущим кадром и предыдущим
 long double lastFrame = 0.0f; // Игровое время последнего кадра
-double timeScale = 1.0f; // Масштаб игрового времени
+long double timeScale = 1.0f; // Масштаб игрового времени
 double timeScaleMax = 1.0f; // Максимальный масштаб игрового времени
 double timeScaleMin = 0.0000001f; // Минимальный масштаб игрового времени
 
@@ -292,6 +297,16 @@ int main() {
   // Привязка
   glBindTextureUnit(1, containerBorderTexture);
 
+  // Настройка imgui
+  // ---------------
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO &io = ImGui::GetIO();
+  (void)io;
+  ImGui::StyleColorsDark();
+  ImGui_ImplGlfw_InitForOpenGL(window, true);
+  ImGui_ImplOpenGL3_Init("#version 460");
+
   // Настройка камеры
   // ----------------
   camera.MinZoom = 0.5f;  // Минимальное значение зума
@@ -342,10 +357,19 @@ int main() {
     realTime = glfwGetTime(); // Запоминаем реальное время
     deltaTime = gameTime - lastFrame; // Вычисляем время между кадрами
 
+    // Новый кадр ImGui
+    // ----------------
+    if (!inputFlag) {
+      ImGui_ImplOpenGL3_NewFrame();
+      ImGui_ImplGlfw_NewFrame();
+      ImGui::NewFrame();
+    }
+
     // Обновление камеры
     // -----------------
     // Движение камеры
-    doMovement();
+    if (inputFlag)
+      doMovement();
     // Матрица вида
     view = camera.GetViewMatrix();
     // Матрица проекции
@@ -412,6 +436,21 @@ int main() {
     // Отрисовка объектов
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
+    // Окно ImGui
+    // ----------
+    if (!inputFlag) {
+      /* Настройки окна */
+      ImGui::Begin("ImGui Window");
+      ImGui::ColorEdit3("Light color", &lightColor.x);
+      ImGui::Text("Game Time: %Lf", gameTime);
+      ImGui::Text("Time scale: %Lf", timeScale);
+      ImGui::End();
+
+      /* Отрисовка окна */
+      ImGui::Render();
+      ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    }
+
     // Проверка и вызов событий
     // ------------------------
     // Проверка колбэков
@@ -424,6 +463,10 @@ int main() {
 
   // Очистка ресурсов и завершение работы
   // ------------------------------------
+  // ImGui
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplGlfw_Shutdown();
+  ImGui::DestroyContext();
   // Удаление VAO
   glDeleteVertexArrays(1, &objVAO);
   glDeleteVertexArrays(1, &lampVAO);
@@ -468,6 +511,18 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
   if (key == GLFW_KEY_D && action == GLFW_RELEASE)
     d_flag = 0;
 
+  // Игнорирование ввода
+  if (key == GLFW_KEY_C && action == GLFW_PRESS) {
+    if (inputFlag) {
+      inputFlag = 0;
+      firstMouse = 1;
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    } else {
+      inputFlag = 1;
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+  }
+
   // time scale
   if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
     timeScale += 0.1;
@@ -507,18 +562,20 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
 
 // Колбэк обработки движения мыши
 void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
-  if (firstMouse) {
+  if (inputFlag) {
+    if (firstMouse) {
+      lastX = xpos;
+      lastY = ypos;
+      firstMouse = false;
+    }
+
+    float xoffset = (xpos - lastX) * (camera.Zoom / 45.0f);
+    float yoffset = (lastY - ypos) * (camera.Zoom / 45.0f);
     lastX = xpos;
     lastY = ypos;
-    firstMouse = false;
+
+    camera.ProcessMouseMovement(xoffset, yoffset);
   }
-
-  float xoffset = (xpos - lastX) * (camera.Zoom / 45.0f);
-  float yoffset = (lastY - ypos) * (camera.Zoom / 45.0f);
-  lastX = xpos;
-  lastY = ypos;
-
-  camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 // Колбэк обработки скролла мыши
