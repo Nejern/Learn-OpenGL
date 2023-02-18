@@ -1,8 +1,8 @@
-CC := g++
+CC := clang++
 TARGET := prog
-SOURCES := Source.cpp Headers/*
-LFLAGS := -lGL -lglfw -lGLEW
+SRC := src
+SOURCES := src/*
+LFLAGS := -ldl -lglfw
 
-$(TARGET): $(SOURCES)
-	@echo " Linking..."
-	$(CC) Source.cpp -o $(TARGET) $(LFLAGS)
+$(TARGET): $(SOURCES) include/*
+	@echo " Linking..."; $(CC) $(SOURCES) -o $@ $(LFLAGS)

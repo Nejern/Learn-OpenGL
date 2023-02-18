@@ -1,6 +1,5 @@
-// GLEW
-#define GLEW_STATIC
-#include <GL/glew.h>
+// GLAD
+#include <glad/gl.h>
 // GLFW
 #include <GLFW/glfw3.h>
 // GLM
@@ -14,8 +13,8 @@
 #include <cmath>
 #include <iostream>
 // Остальные заголовочные файлы
-#include "Headers/Camera.h" // Класс камеры
-#include "Headers/Shader.h" // Класс шейдера
+#include "../include/LearnOpenGL/Camera.h" // Класс камеры
+#include "../include/LearnOpenGL/Shader.h" // Класс шейдера
 
 // Прототипы функций колбэков
 // --------------------------
@@ -129,13 +128,11 @@ int main() {
   // Установка режима захвата курсора
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-  // Инициализация GLEW
-  // ------------------
-  // Включение режима экспериментальных функций
-  glewExperimental = GL_TRUE;
-  // Инициализация GLEW
-  if (glewInit() != GLEW_OK) {
-    std::cout << "Failed to initialize GLEW" << std::endl;
+  // GLAD
+  // ----
+  int version = gladLoadGL(glfwGetProcAddress);
+  if (version == 0) {
+    std::cout << "Failed to initialize OpenGL context\n" << std::endl;
     return -1;
   }
 
@@ -220,8 +217,7 @@ int main() {
 
   // Источник света
   // --------------
-  glm::vec3 lampPos(0.f, 1.0f, 0.f);
-  float radius = 1.0f;
+  glm::vec3 lampPos(1.5f, 1.5f, 1.5f);
   glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
 
   // Буфер вершин для куба
@@ -360,10 +356,6 @@ int main() {
     // Обработка логики
     // ----------------
     /* Источник света */
-    // Позиция источника света
-    lampPos = glm::vec3(sin(gameTime) * radius,
-                        (sin(gameTime) + cos(gameTime)) * radius,
-                        cos(gameTime) * radius);
     // Параметры источника света
     glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
     glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);

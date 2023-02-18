@@ -1,9 +1,8 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-// GLEW
-#define GLEW_STATIC
-#include <GL/glew.h>
+// GLAD
+#include <glad/gl.h>
 // GLM
 #include <glm/glm.hpp>
 

@@ -3,7 +3,7 @@
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
-#include <GL/gl.h>
+#include <glad/gl.h>
 
 // Объявление нескольких возможных значений для действий камеры
 enum Camera_Movement { FORWARD, BACKWARD, LEFT, RIGHT };
