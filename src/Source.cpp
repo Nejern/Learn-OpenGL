@@ -71,7 +71,7 @@ bool d_flag = 0;
 // Глобальные переменные времени
 // -----------------------------
 long double realTime = 0.0f; // Реальное время с начала запуска программы
-long double gameTime = 0.0f; // Игровое время
+long double gameTime = 0.0f;  // Игровое время
 long double deltaTime = 0.0f; // Игровое время между текущим кадром и предыдущим
 long double lastFrame = 0.0f; // Игровое время последнего кадра
 long double timeScale = 1.0f; // Масштаб игрового времени
@@ -237,6 +237,8 @@ int main() {
   // --------------
   glm::vec3 lampPos(1.5f, 1.5f, 1.5f);
   glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
+  float lightLinear = 0.09f;
+  float lightQuadratic = 0.032f;
 
   // Буфер вершин для куба
   // ---------------------
@@ -442,7 +444,10 @@ int main() {
     // Применение позиции камеры
     objShader.setVec3("viewPos", camera.Position);
     // Применение позиции источника света
-    objShader.setVec3("light.direction", -0.2, -1.0, -0.3);
+    objShader.setVec3("light.direction", -0.2f, -1.0f, -0.3f);
+    objShader.setVec3("light.position", lampPos);
+    objShader.setFloat("light.linear", lightLinear);
+    objShader.setFloat("light.quadratic", lightQuadratic);
     objShader.setVec3("light.ambient", ambientColor);
     objShader.setVec3("light.diffuse", diffuseColor);
     objShader.setVec3("light.specular", specularColor);
@@ -451,13 +456,13 @@ int main() {
       // Матрица модели
       model = glm::mat4(1.0f);
       model = glm::translate(model, cubePos[i]);
-      model = glm::rotate(model, glm::radians(20.f * (float)(i + 1) * (float)gameTime),
+      model = glm::rotate(model,
+                          glm::radians(20.f * (float)(i + 1) * (float)gameTime),
                           glm::vec3(1.f, 0.3f, 0.5f));
       objShader.setMat4("model", model);
 
       // Применение матрицы нормали
-      objShader.setMat3("normalMatrix",
-                        glm::transpose(glm::inverse(model)));
+      objShader.setMat3("normalMatrix", glm::transpose(glm::inverse(model)));
 
       // Отрисовка объектов
       glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -466,9 +471,17 @@ int main() {
     // Окно ImGui
     // ----------
     if (!inputFlag) {
-      /* Настройки окна */
       ImGui::Begin("ImGui Window");
-      ImGui::ColorEdit3("Light color", &lightColor.x);
+      /* Настройки окна */
+      if (ImGui::BeginTabBar("Objects Bar", ImGuiTabBarFlags_None)) {
+        if (ImGui::BeginTabItem("Lamp")) {
+          ImGui::ColorEdit3("Light color", &lightColor.x);
+
+          ImGui::EndTabItem();
+        }
+      }
+      ImGui::EndTabBar();
+      ImGui::Separator();
       ImGui::Text("Game Time: %Lf", gameTime);
       ImGui::Text("Time scale: %Lf", timeScale);
       ImGui::End();
