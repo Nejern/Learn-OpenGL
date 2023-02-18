@@ -72,11 +72,15 @@ bool d_flag = 0;
 // -----------------------------
 long double realTime = 0.0f; // Реальное время с начала запуска программы
 long double gameTime = 0.0f; // Игровое время
-double deltaTime = 0.0f; // Игровое время между текущим кадром и предыдущим
+long double deltaTime = 0.0f; // Игровое время между текущим кадром и предыдущим
 long double lastFrame = 0.0f; // Игровое время последнего кадра
 long double timeScale = 1.0f; // Масштаб игрового времени
 double timeScaleMax = 1.0f; // Максимальный масштаб игрового времени
 double timeScaleMin = 0.0000001f; // Минимальный масштаб игрового времени
+
+// Флаг перемещения источника света
+// --------------------------------
+bool lampMoveFlag = 0;
 
 // Точка входа в программу
 int main() {
@@ -389,6 +393,10 @@ int main() {
     // Обработка логики
     // ----------------
     /* Источник света */
+    // Перемещение источника света
+    if (lampMoveFlag) {
+      lampPos = camera.Position + glm::vec3(1.f) * camera.Front;
+    }
     // Параметры источника света
     glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
     glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
@@ -437,11 +445,11 @@ int main() {
     objShader.setVec3("light.diffuse", diffuseColor);
     objShader.setVec3("light.specular", specularColor);
 
-    for (int i = 0; i < sizeof(cubePos) / sizeof(cubePos[0]); i++) {
+    for (int i = 0; i < (int)(sizeof(cubePos) / sizeof(cubePos[0])); i++) {
       // Матрица модели
       model = glm::mat4(1.0f);
       model = glm::translate(model, cubePos[i]);
-      model = glm::rotate(model, glm::radians(20.f * (i + 1) * (float)gameTime),
+      model = glm::rotate(model, glm::radians(20.f * (float)(i + 1) * (float)gameTime),
                           glm::vec3(1.f, 0.3f, 0.5f));
       objShader.setMat4("model", model);
 
@@ -540,6 +548,15 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
     }
   }
 
+  // Перемещение источника света
+  if (key == GLFW_KEY_F && action == GLFW_PRESS) {
+    if (lampMoveFlag) {
+      lampMoveFlag = 0;
+    } else {
+      lampMoveFlag = 1;
+    }
+  }
+
   // time scale
   if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
     timeScale += 0.1;
@@ -580,16 +597,18 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
 // Колбэк обработки движения мыши
 void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
   if (inputFlag) {
+    float xPos = (float)xpos;
+    float yPos = (float)ypos;
     if (firstMouse) {
-      lastX = xpos;
-      lastY = ypos;
+      lastX = xPos;
+      lastY = yPos;
       firstMouse = false;
     }
 
-    float xoffset = (xpos - lastX) * (camera.Zoom / 45.0f);
-    float yoffset = (lastY - ypos) * (camera.Zoom / 45.0f);
-    lastX = xpos;
-    lastY = ypos;
+    float xoffset = (xPos - lastX) * (camera.Zoom / 45.0f);
+    float yoffset = (lastY - yPos) * (camera.Zoom / 45.0f);
+    lastX = xPos;
+    lastY = yPos;
 
     camera.ProcessMouseMovement(xoffset, yoffset);
   }
@@ -597,7 +616,7 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
 
 // Колбэк обработки скролла мыши
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
-  camera.ProcessMouseScroll(yoffset);
+  camera.ProcessMouseScroll((float)yoffset);
 }
 
 // Колбэк обработки изменения размера окна
@@ -610,13 +629,13 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
 // Движение камеры
 void doMovement() {
   if (w_flag)
-    camera.ProcessKeyboard(FORWARD, deltaTime / timeScale);
+    camera.ProcessKeyboard(FORWARD, (float)(deltaTime / timeScale));
   if (s_flag)
-    camera.ProcessKeyboard(BACKWARD, deltaTime / timeScale);
+    camera.ProcessKeyboard(BACKWARD, (float)(deltaTime / timeScale));
   if (a_flag)
-    camera.ProcessKeyboard(LEFT, deltaTime / timeScale);
+    camera.ProcessKeyboard(LEFT, (float)(deltaTime / timeScale));
   if (d_flag)
-    camera.ProcessKeyboard(RIGHT, deltaTime / timeScale);
+    camera.ProcessKeyboard(RIGHT, (float)(deltaTime / timeScale));
 }
 
 // Проверка коэффициента времени
