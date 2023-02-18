@@ -439,8 +439,10 @@ int main() {
     // Матрица проекции
     objShader.setMat4("projection", projection);
 
+    // Применение позиции камеры
+    objShader.setVec3("viewPos", camera.Position);
     // Применение позиции источника света
-    objShader.setVec3("lightPos", lampPos);
+    objShader.setVec3("light.direction", -0.2, -1.0, -0.3);
     objShader.setVec3("light.ambient", ambientColor);
     objShader.setVec3("light.diffuse", diffuseColor);
     objShader.setVec3("light.specular", specularColor);
@@ -455,7 +457,7 @@ int main() {
 
       // Применение матрицы нормали
       objShader.setMat3("normalMatrix",
-                        glm::transpose(glm::inverse(view * model)));
+                        glm::transpose(glm::inverse(model)));
 
       // Отрисовка объектов
       glDrawArrays(GL_TRIANGLES, 0, 36);
