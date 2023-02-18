@@ -220,6 +220,15 @@ int main() {
       -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f // Левый нижний угол
   };
 
+  // Объекты
+  glm::vec3 cubePos[] = {
+      glm::vec3(0.0f, 0.0f, 0.0f),    glm::vec3(2.0f, 5.0f, -15.0f),
+      glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
+      glm::vec3(2.4f, -0.4f, -3.5f),  glm::vec3(-1.7f, 3.0f, -7.5f),
+      glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
+      glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f),
+  };
+
   // Источник света
   // --------------
   glm::vec3 lampPos(1.5f, 1.5f, 1.5f);
@@ -417,9 +426,6 @@ int main() {
     // Прикрепление VAO
     glBindVertexArray(objVAO);
 
-    // Матрица модели
-    model = glm::mat4(1.0f);
-    objShader.setMat4("model", model);
     // Матрица вида
     objShader.setMat4("view", view);
     // Матрица проекции
@@ -430,12 +436,22 @@ int main() {
     objShader.setVec3("light.ambient", ambientColor);
     objShader.setVec3("light.diffuse", diffuseColor);
     objShader.setVec3("light.specular", specularColor);
-    // Применение матрицы нормали
-    objShader.setMat3("normalMatrix",
-                      glm::transpose(glm::inverse(model * view)));
 
-    // Отрисовка объектов
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    for (int i = 0; i < sizeof(cubePos) / sizeof(cubePos[0]); i++) {
+      // Матрица модели
+      model = glm::mat4(1.0f);
+      model = glm::translate(model, cubePos[i]);
+      model = glm::rotate(model, glm::radians(20.f * (i + 1) * (float)gameTime),
+                          glm::vec3(1.f, 0.3f, 0.5f));
+      objShader.setMat4("model", model);
+
+      // Применение матрицы нормали
+      objShader.setMat3("normalMatrix",
+                        glm::transpose(glm::inverse(view * model)));
+
+      // Отрисовка объектов
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
 
     // Окно ImGui
     // ----------
