@@ -22,7 +22,7 @@ uniform Light light;
 
 void main()
 {
-  vec3 lightIntens = vec3(10 / length(FragPos - LightPos));
+  vec3 lightIntens = vec3(5 / length(FragPos - LightPos));
   // ambient
   vec3 ambient = lightIntens * light.ambient * texture(material.diffuse, TexCoords).rgb;
 
