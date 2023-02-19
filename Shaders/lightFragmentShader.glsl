@@ -27,8 +27,8 @@ struct PointLight {
   vec3 diffuse;
   vec3 specular;
 };
-#define NR_POINT_LIGHTS 4
-uniform PointLight pointLights[NR_POINT_LIGHTS];
+#define MAX_POINT_LIGHTS 4
+uniform PointLight pointLights[MAX_POINT_LIGHTS];
 
 in vec3 FragPos;
 in vec3 Normal;
@@ -53,11 +53,15 @@ void main()
   vec3 viewDir = normalize(viewPos - FragPos);
 
   // Направленный свет
-  result = CalcDirLight(dirLight, norm, viewDir);
+  if (dirLight.ambient != vec3(0.f) || dirLight.diffuse != vec3(0.f) || dirLight.specular != vec3(0.f)) {
+    result = CalcDirLight(dirLight, norm, viewDir);
+  }
 
   // Точечный свет
-  for (int i = 0; i < NR_POINT_LIGHTS; i++){
-    result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+  for (int i = 0; i < MAX_POINT_LIGHTS; i++){
+    if (pointLights[i].ambient != vec3(0.f) || pointLights[i].diffuse != vec3(0.f) || pointLights[i].specular != vec3(0.f)) {
+      result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+    }
   }
 
   // "Прожекторный" свет

@@ -75,8 +75,8 @@ long double gameTime = 0.0f;  // Игровое время
 long double deltaTime = 0.0f; // Игровое время между текущим кадром и предыдущим
 long double lastFrame = 0.0f; // Игровое время последнего кадра
 long double timeScale = 1.0f; // Масштаб игрового времени
-double timeScaleMax = 1.0f; // Максимальный масштаб игрового времени
-double timeScaleMin = 0.0000001f; // Минимальный масштаб игрового времени
+long double timeScaleMax = 1.0f; // Максимальный масштаб игрового времени
+long double timeScaleMin = 0.0000001f; // Минимальный масштаб игрового времени
 
 // Флаг перемещения источника света
 // --------------------------------
@@ -84,6 +84,27 @@ bool lampMoveFlag_1 = 0;
 bool lampMoveFlag_2 = 0;
 bool lampMoveFlag_3 = 0;
 bool lampMoveFlag_4 = 0;
+
+// Структура точечного источника света
+// -----------------------------------
+struct PointLight {
+  glm::vec3 position = glm::vec3(0.f);
+  bool moveFlag = 0;
+
+  float linear = 0.09f;
+  float quadratic = 0.032f;
+
+  glm::vec3 color = glm::vec3(0.f);
+  glm::vec3 diffuse = glm::vec3(0.f);
+  glm::vec3 ambient = glm::vec3(0.f);
+  glm::vec3 specular = glm::vec3(0.f);
+
+  void setupColor() {
+    diffuse = glm::vec3(color * glm::vec3(0.2f));
+    ambient = glm::vec3(diffuse * glm::vec3(0.5f));
+    specular = glm::vec3(color * glm::vec3(1.f));
+  }
+};
 
 // Точка входа в программу
 int main() {
@@ -236,20 +257,6 @@ int main() {
       glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f),
   };
 
-  // Источник света
-  // --------------
-  glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
-  float lightLinear = 0.09f;
-  float lightQuadratic = 0.032f;
-
-  // Позиции
-  glm::vec3 pointLampPositions[] = {
-      glm::vec3(0.7f, 0.2f, 2.0f),
-      glm::vec3(2.3f, -3.3f, -4.0f),
-      glm::vec3(-4.0f, 2.0f, -12.0f),
-      glm::vec3(0.0f, 0.0f, -3.0f),
-  };
-
   // Буфер вершин для куба
   // ---------------------
   unsigned int cubeVBO;
@@ -355,7 +362,6 @@ int main() {
   glEnable(GL_DEPTH_TEST);
 
   /* Передача данных в шейдеры */
-
   // Шейдер объекта
   // Привязка шейдера
   objShader.use();
@@ -364,45 +370,20 @@ int main() {
   objShader.setInt("material.diffuse", 0);
   objShader.setInt("material.specular", 1);
   objShader.setFloat("material.shininess", 64.0f);
-  // Установка настроек света
-  // Параметры видов отражения света
-  glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
-  glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
-  glm::vec3 specularColor = lightColor * glm::vec3(1.f);
+
   // Точечный свет
-  objShader.setVec3("pointLights[0].position", pointLampPositions[0]);
-  objShader.setFloat("pointLights[0].linear", lightLinear);
-  objShader.setFloat("pointLights[0].quadratic", lightQuadratic);
-  objShader.setVec3("pointLights[0].diffuse", diffuseColor);
-  objShader.setVec3("pointLights[0].ambient", ambientColor);
-  objShader.setVec3("pointLights[0].specular", specularColor);
+  PointLight lamp[4] = {};
+  lamp[0].position = glm::vec3(0.7f, 0.2f, 2.0f);
+  lamp[1].position = glm::vec3(2.3f, -3.3f, -4.0f);
+  lamp[2].position = glm::vec3(-4.0f, 2.0f, -12.0f);
+  lamp[3].position = glm::vec3(0.0f, 0.0f, -3.0f);
+  unsigned int nrLamps = sizeof(lamp) / sizeof(lamp[0]);
 
-  objShader.setVec3("pointLights[1].position", pointLampPositions[1]);
-  objShader.setFloat("pointLights[1].linear", lightLinear);
-  objShader.setFloat("pointLights[1].quadratic", lightQuadratic);
-  objShader.setVec3("pointLights[1].ambient", ambientColor);
-  objShader.setVec3("pointLights[1].diffuse", diffuseColor);
-  objShader.setVec3("pointLights[1].specular", specularColor);
-
-  objShader.setVec3("pointLights[2].position", pointLampPositions[2]);
-  objShader.setFloat("pointLights[2].linear", lightLinear);
-  objShader.setFloat("pointLights[2].quadratic", lightQuadratic);
-  objShader.setVec3("pointLights[2].ambient", ambientColor);
-  objShader.setVec3("pointLights[2].diffuse", diffuseColor);
-  objShader.setVec3("pointLights[2].specular", specularColor);
-
-  objShader.setVec3("pointLights[3].position", pointLampPositions[3]);
-  objShader.setFloat("pointLights[3].linear", lightLinear);
-  objShader.setFloat("pointLights[3].quadratic", lightQuadratic);
-  objShader.setVec3("pointLights[3].ambient", ambientColor);
-  objShader.setVec3("pointLights[3].diffuse", diffuseColor);
-  objShader.setVec3("pointLights[3].specular", specularColor);
-
-  // Шейдер источника света
-  // Привязка шейдера
-  lampShader.use();
-  // Установка цвета источника света
-  lampShader.setVec3("lightColor", lightColor);
+  // Направленный свет
+  glm::vec3 dirColor = glm::vec3(1.0f);
+  glm::vec3 dirDiffuse = dirColor * 0.5f;
+  glm::vec3 dirAmbient = dirDiffuse * 0.2f;
+  glm::vec3 dirSpecular = dirColor * 0.7f;
 
   // Цикл рендеринга
   // ---------------
@@ -412,6 +393,7 @@ int main() {
     lastFrame = gameTime; // Запоминаем игровое время предыдущего кадра
     gameTime +=
         (glfwGetTime() - realTime) * timeScale; // Обновляем игровое время
+    float frameTime = (float)(glfwGetTime() - realTime);
     realTime = glfwGetTime(); // Запоминаем реальное время
     deltaTime = gameTime - lastFrame; // Вычисляем время между кадрами
 
@@ -439,21 +421,11 @@ int main() {
     // ----------------
     /* Источник света */
     // Перемещение источника света
-    if (lampMoveFlag_1) {
-      pointLampPositions[0] = camera.Position + glm::vec3(1.f) * camera.Front;
-      objShader.setVec3("pointLights[0].position", pointLampPositions[0]);
-    }
-    if (lampMoveFlag_2) {
-      pointLampPositions[1] = camera.Position + glm::vec3(1.f) * camera.Front;
-      objShader.setVec3("pointLights[1].position", pointLampPositions[1]);
-    }
-    if (lampMoveFlag_3) {
-      pointLampPositions[2] = camera.Position + glm::vec3(1.f) * camera.Front;
-      objShader.setVec3("pointLights[2].position", pointLampPositions[2]);
-    }
-    if (lampMoveFlag_4) {
-      pointLampPositions[3] = camera.Position + glm::vec3(1.f) * camera.Front;
-      objShader.setVec3("pointLights[3].position", pointLampPositions[3]);
+    for (unsigned int i = 0; i < nrLamps; i++) {
+      if (lamp[i].moveFlag) {
+        lamp[i].position = camera.Position + glm::vec3(1.f) * camera.Front;
+        objShader.setVec3("pointLights[0].position", lamp[i].position);
+      }
     }
 
     // Отрисовка
@@ -472,17 +444,15 @@ int main() {
     // Матрица проекции
     lampShader.setMat4("projection", projection);
 
-    for (int i = 0;
-         i < (int)(sizeof(pointLampPositions) / sizeof(pointLampPositions[0]));
-         i++) {
+    for (int i = 0; i < nrLamps; i++) {
       // Матрица модели
       model = glm::mat4(1.0f);
-      model = glm::translate(model, pointLampPositions[i]);
+      model = glm::translate(model, lamp[i].position);
       model = glm::scale(model, glm::vec3(0.2f));
       lampShader.setMat4("model", model);
 
       // Применение цвета источника света
-      lampShader.setVec3("lightColor", lightColor);
+      lampShader.setVec3("lightColor", lamp[i].color);
 
       // Отрисовка примитивов
       glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -501,19 +471,37 @@ int main() {
 
     // Применение позиции камеры
     objShader.setVec3("viewPos", camera.Position);
+
     // Применение настроек источников света
+
     // Направленный свет
     objShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-    objShader.setVec3("dirLight.ambient", ambientColor);
-    objShader.setVec3("dirLight.diffuse", diffuseColor);
-    objShader.setVec3("dirLight.specular", specularColor);
+    objShader.setVec3("dirLight.ambient", dirAmbient);
+    objShader.setVec3("dirLight.diffuse", dirDiffuse);
+    objShader.setVec3("dirLight.specular", dirSpecular);
+
+    // Точечный свет
+    for (unsigned int i = 0; i < nrLamps; i++) {
+      objShader.setVec3("pointLights[" + std::to_string(i) + "].position",
+                        lamp[i].position);
+      objShader.setFloat("pointLights[" + std::to_string(i) + "].linear",
+                         lamp[i].linear);
+      objShader.setFloat("pointLights[" + std::to_string(i) + "].quadratic",
+                         lamp[i].quadratic);
+      objShader.setVec3("pointLights[" + std::to_string(i) + "].diffuse",
+                        lamp[i].diffuse);
+      objShader.setVec3("pointLights[" + std::to_string(i) + "].ambient",
+                        lamp[i].ambient);
+      objShader.setVec3("pointLights[" + std::to_string(i) + "].specular",
+                        lamp[i].specular);
+    }
 
     for (int i = 0; i < (int)(sizeof(cubePos) / sizeof(cubePos[0])); i++) {
       // Матрица модели
       model = glm::mat4(1.0f);
       model = glm::translate(model, cubePos[i]);
       model = glm::rotate(model,
-                          glm::radians(20.f * (float)(i + 1) * (float)gameTime),
+                          glm::radians(20.f * (float)(i + 1) * (float)gameTime * (float)(pow(-1, i))),
                           glm::vec3(1.f, 0.3f, 0.5f));
       objShader.setMat4("model", model);
 
@@ -529,20 +517,37 @@ int main() {
     if (!inputFlag) {
       ImGui::Begin("ImGui Window");
       /* Настройки окна */
-      if (ImGui::BeginTabBar("Objects Bar", ImGuiTabBarFlags_None)) {
-        if (ImGui::BeginTabItem("Lamp")) {
-          if (ImGui::ColorEdit3("Light color", &lightColor.x)) {
-            diffuseColor = lightColor * glm::vec3(0.5f);
-            ambientColor = diffuseColor * glm::vec3(0.2f);
-            specularColor = lightColor * glm::vec3(1.f);
+
+      if (ImGui::BeginTabBar("Light Bar", ImGuiTabBarFlags_None)) {
+        if (ImGui::BeginTabItem("Direction light")) {
+          if (ImGui::ColorEdit3("Light color", &dirColor.x)) {
+            dirDiffuse = dirColor * 0.5f;
+            dirAmbient = dirDiffuse * 0.2f;
+            dirSpecular = dirColor * 0.7f;
           }
           ImGui::EndTabItem();
         }
+
+        for (unsigned int i = 0; i < nrLamps; i++) {
+          if (ImGui::BeginTabItem(("Lamp " + std::to_string(i)).c_str())) {
+            if (ImGui::ColorEdit3("Light color", &lamp[i].color.x)) {
+              lamp[i].setupColor();
+            }
+            ImGui::Checkbox("Move", &lamp[i].moveFlag);
+            ImGui::EndTabItem();
+          }
+        }
       }
       ImGui::EndTabBar();
+
       ImGui::Separator();
+
       ImGui::Text("Game Time: %Lf", gameTime);
+      ImGui::SameLine();
       ImGui::Text("Time scale: %Lf", timeScale);
+
+      ImGui::Text("Frame Time: %f", frameTime);
+
       ImGui::End();
 
       /* Отрисовка окна */
@@ -619,39 +624,6 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
     } else {
       inputFlag = 1;
       glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    }
-  }
-
-  // Перемещение источника света 1
-  if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
-    if (lampMoveFlag_1) {
-      lampMoveFlag_1 = 0;
-    } else {
-      lampMoveFlag_1 = 1;
-    }
-  }
-  // Перемещение источника света 2
-  if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
-    if (lampMoveFlag_2) {
-      lampMoveFlag_2 = 0;
-    } else {
-      lampMoveFlag_2 = 1;
-    }
-  }
-  // Перемещение источника света 3
-  if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
-    if (lampMoveFlag_3) {
-      lampMoveFlag_3 = 0;
-    } else {
-      lampMoveFlag_3 = 1;
-    }
-  }
-  // Перемещение источника света 4
-  if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
-    if (lampMoveFlag_4) {
-      lampMoveFlag_4 = 0;
-    } else {
-      lampMoveFlag_4 = 1;
     }
   }
 
