@@ -374,13 +374,15 @@ int main() {
   // Точечный свет
   PointLight lamp[4] = {};
   lamp[0].position = glm::vec3(0.7f, 0.2f, 2.0f);
+  lamp[0].color = glm::vec3(1.f);
+  lamp[0].setupColor();
   lamp[1].position = glm::vec3(2.3f, -3.3f, -4.0f);
   lamp[2].position = glm::vec3(-4.0f, 2.0f, -12.0f);
   lamp[3].position = glm::vec3(0.0f, 0.0f, -3.0f);
   unsigned int nrLamps = sizeof(lamp) / sizeof(lamp[0]);
 
   // Направленный свет
-  glm::vec3 dirColor = glm::vec3(1.0f);
+  glm::vec3 dirColor = glm::vec3(0.0f);
   glm::vec3 dirDiffuse = dirColor * 0.5f;
   glm::vec3 dirAmbient = dirDiffuse * 0.2f;
   glm::vec3 dirSpecular = dirColor * 0.7f;
@@ -444,7 +446,7 @@ int main() {
     // Матрица проекции
     lampShader.setMat4("projection", projection);
 
-    for (int i = 0; i < nrLamps; i++) {
+    for (unsigned int i = 0; i < nrLamps; i++) {
       // Матрица модели
       model = glm::mat4(1.0f);
       model = glm::translate(model, lamp[i].position);
