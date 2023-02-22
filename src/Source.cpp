@@ -378,6 +378,18 @@ int main() {
   glm::vec3 dirAmbient = dirDiffuse * 0.2f;
   glm::vec3 dirSpecular = dirColor * 0.7f;
 
+  // Фонарик
+  glm::vec3 spotColor = glm::vec3(0.0f);
+  glm::vec3 spotDiffuse = spotColor * 0.5f;
+  glm::vec3 spotAmbient = spotDiffuse * 0.2f;
+  glm::vec3 spotSpecular = spotColor * 0.7f;
+  float spotLinear = 0.022f;
+  float spotQuadratic = 0.019f;
+  float spotAngle = glm::radians(9.f);
+  float spotCutOff = cos(spotAngle);
+  float spotOuterAngle = glm::radians(19.f);
+  float spotOuterCutOff = cos(spotOuterAngle);
+
   // Цикл рендеринга
   // ---------------
   while (!glfwWindowShouldClose(window)) {
@@ -411,7 +423,7 @@ int main() {
 
     // Обработка логики
     // ----------------
-    /* Источник света */
+    /* Источник точечного света */
     // Перемещение источника света
     for (unsigned int i = 0; i < nrLamps; i++) {
       if (lamp[i].moveFlag) {
@@ -488,6 +500,17 @@ int main() {
                         lamp[i].color * lamp[i].spec);
     }
 
+    // Фонарик
+    objShader.setVec3("spotLight.position", camera.Position);
+    objShader.setVec3("spotLight.direction", camera.Front);
+    objShader.setFloat("spotLight.cutOff", spotCutOff);
+    objShader.setFloat("spotLight.outerCutOff", spotOuterCutOff);
+    objShader.setVec3("spotLight.ambient", spotAmbient);
+    objShader.setVec3("spotLight.diffuse", spotDiffuse);
+    objShader.setVec3("spotLight.specular", spotSpecular);
+    objShader.setFloat("spotLight.linear", spotLinear);
+    objShader.setFloat("spotLight.quadratic", spotQuadratic);
+
     for (int i = 0; i < (int)(sizeof(cubePos) / sizeof(cubePos[0])); i++) {
       // Матрица модели
       model = glm::mat4(1.0f);
@@ -519,6 +542,27 @@ int main() {
             dirAmbient = dirDiffuse * 0.2f;
             dirSpecular = dirColor * 0.7f;
           }
+          ImGui::EndTabItem();
+        }
+        // Фонарик
+        if (ImGui::BeginTabItem("Flashlight")) {
+          if (ImGui::ColorEdit3("Light color", &spotColor.x)) {
+            spotDiffuse = spotColor * 0.5f;
+            spotAmbient = spotDiffuse * 0.2f;
+            spotSpecular = spotColor * 0.7f;
+          }
+          if (ImGui::SliderAngle("CutOff", &spotAngle, 0.f, 50.f)) {
+            spotCutOff = cos(spotAngle);
+            if (spotAngle > spotOuterAngle){
+              spotOuterAngle = spotAngle;
+              spotOuterCutOff = spotCutOff;
+            }
+          }
+          if (ImGui::SliderAngle("Outer cutOff", &spotOuterAngle, glm::degrees(spotAngle), 50.f)) {
+            spotOuterCutOff = cos(spotOuterAngle);
+          }
+          ImGui::SliderFloat("Linear ratio", &spotLinear, 0.f, 1.0f);
+          ImGui::SliderFloat("Quadratic ratio", &spotQuadratic, 0.f, 2.0f);
           ImGui::EndTabItem();
         }
         // Парсер точечных источников света

@@ -31,6 +31,22 @@ struct PointLight {
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
 uniform uint acutalPointLights;
 
+struct SpotLight {
+  vec3 position;
+  vec3 direction;
+
+  float cutOff;
+  float outerCutOff;
+
+  float linear;
+  float quadratic;
+
+  vec3 ambient;
+  vec3 diffuse;
+  vec3 specular;
+};
+uniform SpotLight spotLight;
+
 in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoords;
@@ -44,7 +60,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 // Функция подсчета направленного света
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragDir, vec3 viewDir);
 // Функция подсчета направленного света
-//vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 void main()
 {
@@ -66,7 +82,9 @@ void main()
   }
 
   // "Прожекторный" свет
-  //result += CalcSpotLight(pointLights[i], norm, FragPos, viewDir);
+  if (spotLight.ambient != vec3(0.f) || spotLight.diffuse != vec3(0.f) || spotLight.specular != vec3(0.f)) {
+    result += CalcSpotLight(spotLight, norm, FragPos, viewDir);
+  }
 
   FragColor = vec4(result, 1.f);
 }
@@ -92,8 +110,8 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir) {
   return (ambient + diffuse + specular);
 }
 
-// Функция подсчета направленного света
-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir){
+// Функция подсчета точечного света
+vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
   // diffuse
   vec3 lightDir = normalize(light.position - fragPos);
   float diff = max(dot(normal, lightDir), 0.f);
@@ -117,5 +135,29 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir){
   return (ambient + diffuse + specular);
 }
 
-// Функция подсчета направленного света
-//vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir){}
+// Функция подсчета прожектерного света
+vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
+  vec3 result = vec3(0.f);
+  vec3 lightDir = normalize(light.position - fragPos);
+  float theta = dot(lightDir, normalize(-light.direction));
+  float epsilon = light.cutOff - light.outerCutOff;
+  float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.f, 1.f);
+
+  // attenuation
+  float dist = length(light.position - fragPos);
+  float attenuation = 1.f / (1.f + light.linear * dist + light.quadratic * pow(dist, 2));
+
+  // diffuse
+  result += light.diffuse * max(dot(normal, lightDir), 0.f) * texture(material.diffuse, TexCoords).rgb;
+
+  // ambient
+  result += light.ambient * texture(material.diffuse, TexCoords).rgb;
+
+  // specular
+  vec3 reflectDir = reflect(-lightDir, normal);
+  result += light.specular * pow(max(dot(viewDir, reflectDir), 0.f), material.shininess) * texture(material.specular, TexCoords).rgb;
+
+  result *= attenuation * intensity;
+
+  return result;
+}
