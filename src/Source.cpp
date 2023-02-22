@@ -4,13 +4,10 @@
 #include <GLFW/glfw3.h>
 // GLM
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 // STB
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 // imgui
-#include "../include/imgui/imgui.h"
 #include "../include/imgui/imgui_impl_glfw.h"
 #include "../include/imgui/imgui_impl_opengl3.h"
 // Остальные библиотеки
@@ -95,15 +92,9 @@ struct PointLight {
   float quadratic = 0.032f;
 
   glm::vec3 color = glm::vec3(0.f);
-  glm::vec3 diffuse = glm::vec3(0.f);
-  glm::vec3 ambient = glm::vec3(0.f);
-  glm::vec3 specular = glm::vec3(0.f);
-
-  void setupColor() {
-    diffuse = glm::vec3(color * glm::vec3(0.2f));
-    ambient = glm::vec3(diffuse * glm::vec3(0.5f));
-    specular = glm::vec3(color * glm::vec3(1.f));
-  }
+  float diff = 0.8f;
+  float amb = 0.3f;
+  float spec = 1.f;
 };
 
 // Точка входа в программу
@@ -375,11 +366,11 @@ int main() {
   PointLight lamp[4] = {};
   lamp[0].position = glm::vec3(0.7f, 0.2f, 2.0f);
   lamp[0].color = glm::vec3(1.f);
-  lamp[0].setupColor();
   lamp[1].position = glm::vec3(2.3f, -3.3f, -4.0f);
   lamp[2].position = glm::vec3(-4.0f, 2.0f, -12.0f);
   lamp[3].position = glm::vec3(0.0f, 0.0f, -3.0f);
   unsigned int nrLamps = sizeof(lamp) / sizeof(lamp[0]);
+  objShader.setUInt("acutalPointLights", nrLamps);
 
   // Направленный свет
   glm::vec3 dirColor = glm::vec3(0.0f);
@@ -395,7 +386,6 @@ int main() {
     lastFrame = gameTime; // Запоминаем игровое время предыдущего кадра
     gameTime +=
         (glfwGetTime() - realTime) * timeScale; // Обновляем игровое время
-    float frameTime = (float)(glfwGetTime() - realTime);
     realTime = glfwGetTime(); // Запоминаем реальное время
     deltaTime = gameTime - lastFrame; // Вычисляем время между кадрами
 
@@ -491,11 +481,11 @@ int main() {
       objShader.setFloat("pointLights[" + std::to_string(i) + "].quadratic",
                          lamp[i].quadratic);
       objShader.setVec3("pointLights[" + std::to_string(i) + "].diffuse",
-                        lamp[i].diffuse);
+                        lamp[i].color * lamp[i].diff);
       objShader.setVec3("pointLights[" + std::to_string(i) + "].ambient",
-                        lamp[i].ambient);
+                        lamp[i].color * lamp[i].diff * lamp[i].amb);
       objShader.setVec3("pointLights[" + std::to_string(i) + "].specular",
-                        lamp[i].specular);
+                        lamp[i].color * lamp[i].spec);
     }
 
     for (int i = 0; i < (int)(sizeof(cubePos) / sizeof(cubePos[0])); i++) {
@@ -503,7 +493,8 @@ int main() {
       model = glm::mat4(1.0f);
       model = glm::translate(model, cubePos[i]);
       model = glm::rotate(model,
-                          glm::radians(20.f * (float)(i + 1) * (float)gameTime * (float)(pow(-1, i))),
+                          glm::radians(20.f * (float)(i + 1) * (float)gameTime *
+                                       (float)(pow(-1, i))),
                           glm::vec3(1.f, 0.3f, 0.5f));
       objShader.setMat4("model", model);
 
@@ -517,10 +508,11 @@ int main() {
     // Окно ImGui
     // ----------
     if (!inputFlag) {
+      // Cоздание окна
       ImGui::Begin("ImGui Window");
-      /* Настройки окна */
-
+      /* Таб бар */
       if (ImGui::BeginTabBar("Light Bar", ImGuiTabBarFlags_None)) {
+        // Направленный свет
         if (ImGui::BeginTabItem("Direction light")) {
           if (ImGui::ColorEdit3("Light color", &dirColor.x)) {
             dirDiffuse = dirColor * 0.5f;
@@ -529,12 +521,13 @@ int main() {
           }
           ImGui::EndTabItem();
         }
-
+        // Парсер точечных источников света
         for (unsigned int i = 0; i < nrLamps; i++) {
           if (ImGui::BeginTabItem(("Lamp " + std::to_string(i)).c_str())) {
-            if (ImGui::ColorEdit3("Light color", &lamp[i].color.x)) {
-              lamp[i].setupColor();
-            }
+            ImGui::ColorEdit3("Light color", &lamp[i].color.x);
+            ImGui::SliderFloat("Diffuse ratio", &lamp[i].diff, 0.f, 1.0f);
+            ImGui::SliderFloat("Ambient ratio", &lamp[i].amb, 0.f, 1.0f);
+            ImGui::SliderFloat("Specular ratio", &lamp[i].spec, 0.f, 1.0f);
             ImGui::Checkbox("Move", &lamp[i].moveFlag);
             ImGui::EndTabItem();
           }
@@ -544,15 +537,15 @@ int main() {
 
       ImGui::Separator();
 
+      /* Секция с игровым временем итд */
       ImGui::Text("Game Time: %Lf", gameTime);
       ImGui::SameLine();
       ImGui::Text("Time scale: %Lf", timeScale);
 
-      ImGui::Text("Frame Time: %f", frameTime);
-
       ImGui::End();
 
-      /* Отрисовка окна */
+      // Отрисовка окна
+      //---------------
       ImGui::Render();
       ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }

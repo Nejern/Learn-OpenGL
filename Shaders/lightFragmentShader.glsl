@@ -27,8 +27,9 @@ struct PointLight {
   vec3 diffuse;
   vec3 specular;
 };
-#define MAX_POINT_LIGHTS 4
+#define MAX_POINT_LIGHTS 10
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
+uniform uint acutalPointLights;
 
 in vec3 FragPos;
 in vec3 Normal;
@@ -58,7 +59,7 @@ void main()
   }
 
   // Точечный свет
-  for (int i = 0; i < MAX_POINT_LIGHTS; i++){
+  for (int i = 0; i < acutalPointLights && i < MAX_POINT_LIGHTS; i++) {
     if (pointLights[i].ambient != vec3(0.f) || pointLights[i].diffuse != vec3(0.f) || pointLights[i].specular != vec3(0.f)) {
       result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
     }
