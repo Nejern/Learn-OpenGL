@@ -4,9 +4,6 @@
 #include <GLFW/glfw3.h>
 // GLM
 #include <glm/glm.hpp>
-// STB
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
 // imgui
 #include "../include/imgui/imgui_impl_glfw.h"
 #include "../include/imgui/imgui_impl_opengl3.h"
@@ -15,11 +12,11 @@
 #include <iostream>
 // Остальные заголовочные файлы
 #include "../include/LearnOpenGL/Camera.h" // Класс камеры
+#include "../include/LearnOpenGL/Model.h"  // Класс модели
 #include "../include/LearnOpenGL/Shader.h" // Класс шейдера
 
 // Прототипы функций колбэков
 // --------------------------
-
 // Функция обработки ошибок GLFW
 void glfwErrorCallback(int error, const char *description);
 
@@ -38,10 +35,6 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 
 // Прототипы остальных функций
 // ---------------------------
-
-// Генерация текстуры
-unsigned int genTexturePath(const char *path);
-
 // Движение камеры
 void doMovement();
 
@@ -92,9 +85,9 @@ struct PointLight {
   float quadratic = 0.032f;
 
   glm::vec3 color = glm::vec3(0.f);
-  float diff = 0.8f;
-  float amb = 0.3f;
-  float spec = 1.f;
+  float diff = 0.3f;
+  float amb = 1.f;
+  float spec = 0.1f;
 };
 
 // Точка входа в программу
@@ -113,11 +106,6 @@ int main() {
 
   // Отключение возможности изменения размеров окна
   glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-
-  // Режим совместимости с MacOS
-#ifdef __APPLE__
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // Для Mac OS
-#endif
 
   // Создание окна
   // -------------
@@ -168,11 +156,12 @@ int main() {
   // Шейдеры
   // -------
   // Шейдер для отрисовки куба
-  Shader objShader("./Shaders/lightVertexShader.glsl",
-                   "./Shaders/lightFragmentShader.glsl");
+  Shader objShader("./resources/Shaders/lightVertexShader.glsl",
+                   "./resources/Shaders/lightFragmentShader.glsl");
+
   // Шейдер для отрисовки источника света
-  Shader lampShader("./Shaders/lampVertexShader.glsl",
-                    "./Shaders/lampFragmentShader.glsl");
+  Shader lampShader("./resources/Shaders/lampVertexShader.glsl",
+                    "./resources/Shaders/lampFragmentShader.glsl");
 
   // Вершины
   // -------
@@ -239,14 +228,9 @@ int main() {
       -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f // Левый нижний угол
   };
 
-  // Объекты
-  glm::vec3 cubePos[] = {
-      glm::vec3(0.0f, 0.0f, 0.0f),    glm::vec3(2.0f, 5.0f, -15.0f),
-      glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
-      glm::vec3(2.4f, -0.4f, -3.5f),  glm::vec3(-1.7f, 3.0f, -7.5f),
-      glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
-      glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f),
-  };
+  // Рюкзак
+  // ------
+  Model ourModel((char *)"./resources/objects/backpack/backpack.obj");
 
   // Буфер вершин для куба
   // ---------------------
@@ -254,30 +238,6 @@ int main() {
   glCreateBuffers(1, &cubeVBO);
   // Заполняем буфер вершин
   glNamedBufferStorage(cubeVBO, sizeof(vertices), vertices, 0);
-
-  // Буфер массива вершин для объекта
-  // --------------------------------
-  /* Создаем VAO */
-  unsigned int objVAO;
-  glCreateVertexArrays(1, &objVAO); // Создаем VAO
-
-  /* Включаем и устанавливаем атрибуты вершин */
-  // Позиция вершин
-  glVertexArrayAttribFormat(objVAO, 0, 3, GL_FLOAT, GL_FALSE, 0);
-  glVertexArrayAttribBinding(objVAO, 0, 0);
-  glEnableVertexArrayAttrib(objVAO, 0);
-  // Нормали
-  glVertexArrayAttribFormat(objVAO, 1, 3, GL_FLOAT, GL_FALSE,
-                            3 * sizeof(float));
-  glVertexArrayAttribBinding(objVAO, 1, 0);
-  glEnableVertexArrayAttrib(objVAO, 1);
-  // Текстурные координаты
-  glVertexArrayAttribFormat(objVAO, 2, 2, GL_FLOAT, GL_FALSE,
-                            6 * sizeof(float));
-  glVertexArrayAttribBinding(objVAO, 2, 0);
-  glEnableVertexArrayAttrib(objVAO, 2);
-  // Связываем атрибуты с текущим VBO
-  glVertexArrayVertexBuffer(objVAO, 0, cubeVBO, 0, 8 * sizeof(float));
 
   // Буфер массива вершин для источника света
   // ---------------------------------
@@ -292,33 +252,6 @@ int main() {
   glEnableVertexArrayAttrib(lampVAO, 0);
   // Связываем атрибуты с текущим VBO
   glVertexArrayVertexBuffer(lampVAO, 0, cubeVBO, 0, 8 * sizeof(float));
-
-  // Текстуры
-  // --------
-  /* Контейнер */
-  unsigned int containerTexture = genTexturePath("./Textures/container2.png");
-  // Настойка
-  glTextureParameteri(containerTexture, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-  glTextureParameteri(containerTexture, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-  glTextureParameteri(containerTexture, GL_TEXTURE_MIN_FILTER,
-                      GL_LINEAR_MIPMAP_LINEAR);
-  glTextureParameteri(containerTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  // Привязка
-  glBindTextureUnit(0, containerTexture);
-
-  /* Металическая обводка контейнера */
-  unsigned int containerBorderTexture =
-      genTexturePath("./Textures/container2_specular.png");
-  // Настойка
-  glTextureParameteri(containerBorderTexture, GL_TEXTURE_WRAP_S,
-                      GL_MIRRORED_REPEAT);
-  glTextureParameteri(containerBorderTexture, GL_TEXTURE_WRAP_T,
-                      GL_MIRRORED_REPEAT);
-  glTextureParameteri(containerBorderTexture, GL_TEXTURE_MIN_FILTER,
-                      GL_LINEAR_MIPMAP_LINEAR);
-  glTextureParameteri(containerBorderTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  // Привязка
-  glBindTextureUnit(1, containerBorderTexture);
 
   // Настройка imgui
   // ---------------
@@ -356,12 +289,6 @@ int main() {
   // Шейдер объекта
   // Привязка шейдера
   objShader.use();
-  // Установка текстурных юнитов
-  // Установка материала
-  objShader.setInt("material.diffuse", 0);
-  objShader.setInt("material.specular", 1);
-  objShader.setFloat("material.shininess", 64.0f);
-
   // Точечный свет
   PointLight lamp[4] = {};
   lamp[0].position = glm::vec3(0.7f, 0.2f, 2.0f);
@@ -437,7 +364,8 @@ int main() {
     // Очистка буфера цвета и буфера глубины
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    /* Источник света */
+    // Источники света
+    // ---------------
     // Привязка шейдера
     lampShader.use();
     // Прикрепление VAO
@@ -462,12 +390,10 @@ int main() {
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
-    /* Объект */
+    // Рюкзак
+    // ------
     // Привязка шейдера
     objShader.use();
-    // Прикрепление VAO
-    glBindVertexArray(objVAO);
-
     // Матрица вида
     objShader.setMat4("view", view);
     // Матрица проекции
@@ -476,8 +402,7 @@ int main() {
     // Применение позиции камеры
     objShader.setVec3("viewPos", camera.Position);
 
-    // Применение настроек источников света
-
+    /* Применение настроек источников света */
     // Направленный свет
     objShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
     objShader.setVec3("dirLight.ambient", dirAmbient);
@@ -511,22 +436,16 @@ int main() {
     objShader.setFloat("spotLight.linear", spotLinear);
     objShader.setFloat("spotLight.quadratic", spotQuadratic);
 
-    for (int i = 0; i < (int)(sizeof(cubePos) / sizeof(cubePos[0])); i++) {
-      // Матрица модели
-      model = glm::mat4(1.0f);
-      model = glm::translate(model, cubePos[i]);
-      model = glm::rotate(model,
-                          glm::radians(20.f * (float)(i + 1) * (float)gameTime *
-                                       (float)(pow(-1, i))),
-                          glm::vec3(1.f, 0.3f, 0.5f));
-      objShader.setMat4("model", model);
+    // Матрица модели
+    model = glm::mat4(1.0f);
+    model = glm::scale(model, glm::vec3(0.3f));
+    objShader.setMat4("model", model);
 
-      // Применение матрицы нормали
-      objShader.setMat3("normalMatrix", glm::transpose(glm::inverse(model)));
+    // Применение матрицы нормали
+    objShader.setMat3("normalMatrix", glm::transpose(glm::inverse(model)));
 
-      // Отрисовка объектов
-      glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
+    // Отрисовка объектов
+    ourModel.Draw(objShader);
 
     // Окно ImGui
     // ----------
@@ -553,12 +472,13 @@ int main() {
           }
           if (ImGui::SliderAngle("CutOff", &spotAngle, 0.f, 50.f)) {
             spotCutOff = cos(spotAngle);
-            if (spotAngle > spotOuterAngle){
+            if (spotAngle > spotOuterAngle) {
               spotOuterAngle = spotAngle;
               spotOuterCutOff = spotCutOff;
             }
           }
-          if (ImGui::SliderAngle("Outer cutOff", &spotOuterAngle, glm::degrees(spotAngle), 50.f)) {
+          if (ImGui::SliderAngle("Outer cutOff", &spotOuterAngle,
+                                 glm::degrees(spotAngle), 50.f)) {
             spotOuterCutOff = cos(spotOuterAngle);
           }
           ImGui::SliderFloat("Linear ratio", &spotLinear, 0.f, 1.0f);
@@ -611,7 +531,6 @@ int main() {
   ImGui_ImplGlfw_Shutdown();
   ImGui::DestroyContext();
   // Удаление VAO
-  glDeleteVertexArrays(1, &objVAO);
   glDeleteVertexArrays(1, &lampVAO);
   // Удаление VBO
   glDeleteBuffers(1, &cubeVBO);
@@ -754,35 +673,4 @@ void checkTimeScale() {
   } else if (timeScale > timeScaleMax) {
     timeScale = timeScaleMax;
   }
-}
-
-// Генереция текстуры
-unsigned int genTexturePath(const char *path) {
-  unsigned int ID;
-  // Создание и привязка имени текстуры
-  glCreateTextures(GL_TEXTURE_2D, 1, &ID);
-
-  // Настройка чтения текстуры
-  stbi_set_flip_vertically_on_load(true);
-
-  // Загрузка изображения, создание текстуры и генерация мип-уровней
-  int width, height, nrChannels;
-  unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
-  if (data) {
-    if (nrChannels == 3) {
-      glTextureStorage2D(ID, 1, GL_RGB8, width, height);
-      glTextureSubImage2D(ID, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE,
-                          data);
-      glGenerateTextureMipmap(ID);
-    } else if (nrChannels == 4) {
-      glTextureStorage2D(ID, 1, GL_RGBA8, width, height);
-      glTextureSubImage2D(ID, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE,
-                          data);
-      glGenerateTextureMipmap(ID);
-    }
-  } else {
-    std::cout << "Failed to load texture" << std::endl;
-  }
-  stbi_image_free(data);
-  return ID;
 }

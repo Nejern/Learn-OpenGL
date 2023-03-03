@@ -141,9 +141,9 @@ private:
   void updateCameraVectors() {
     // Вычисляем новые вектора Front, Right и Up
     glm::vec3 front;
-    front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-    front.y = sin(glm::radians(Pitch));
-    front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+    front.x = (float)(cos(glm::radians(Yaw)) * cos(glm::radians(Pitch)));
+    front.y = (float)(sin(glm::radians(Pitch)));
+    front.z = (float)(sin(glm::radians(Yaw)) * cos(glm::radians(Pitch)));
     Front = glm::normalize(front);
     Right = glm::normalize(glm::cross(Front, WorldUp));
     Up = glm::normalize(glm::cross(Right, Front));
