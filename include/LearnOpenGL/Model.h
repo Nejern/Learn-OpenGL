@@ -53,8 +53,8 @@ private:
     // Чтение файла с помощью ASSIMP
     Assimp::Importer importer;
     const aiScene *scene = importer.ReadFile(
-        path, aiProcess_Triangulate | aiProcess_GenNormals |
-                  aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+        path, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_FlipUVs |
+                  aiProcess_CalcTangentSpace);
 
     // Проверка на ошибки
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
@@ -151,9 +151,16 @@ private:
     std::vector<Texture> heightMaps =
         loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+    // Shininess
+    float matShininess;
+    if (AI_SUCCESS !=
+        aiGetMaterialFloat(material, AI_MATKEY_SHININESS, &matShininess)) {
+      // if unsuccessful set a default
+      matShininess = 16.f;
+    }
 
     // Вывод
-    return Mesh(vertices, indices, textures);
+    return Mesh(vertices, indices, textures, matShininess);
   }
 
   std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type,

@@ -45,14 +45,16 @@ public:
   std::vector<Vertex> vertices;
   std::vector<unsigned int> indices;
   std::vector<Texture> textures;
+  float matShininess;
   unsigned int VAO;
 
   // Конструктор
   Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
-       std::vector<Texture> textures) {
+       std::vector<Texture> textures, float matShininess) {
     this->vertices = vertices;
     this->indices = indices;
     this->textures = textures;
+    this->matShininess = matShininess;
 
     setupMesh();
   }
@@ -62,6 +64,10 @@ public:
     unsigned int specularNr = 0;
     unsigned int normalNr = 0;
     unsigned int heightNr = 0;
+
+    shader.setFloat("material.shininess", matShininess);
+
+    // Текстурные карты
     for (unsigned int i = 0; i < textures.size(); i++) {
       std::string number;
       std::string name = textures[i].type;
