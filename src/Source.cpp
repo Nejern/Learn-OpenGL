@@ -64,9 +64,9 @@ long double realTime = 0.0f; // Реальное время с начала за
 long double gameTime = 0.0f;  // Игровое время
 long double deltaTime = 0.0f; // Игровое время между текущим кадром и предыдущим
 long double lastFrame = 0.0f; // Игровое время последнего кадра
-long double timeScale = 1.0f; // Масштаб игрового времени
-long double timeScaleMax = 1.0f; // Максимальный масштаб игрового времени
-long double timeScaleMin = 0.0000001f; // Минимальный масштаб игрового времени
+double timeScale = 1.0f; // Масштаб игрового времени
+double timeScaleMax = 1000000000.0f; // Максимальный масштаб игрового времени
+double timeScaleMin = 0.0000001f; // Минимальный масштаб игрового времени
 
 // Флаг перемещения источника света
 // --------------------------------
@@ -436,16 +436,30 @@ int main() {
     objShader.setFloat("spotLight.linear", spotLinear);
     objShader.setFloat("spotLight.quadratic", spotQuadratic);
 
-    // Матрица модели
-    model = glm::mat4(1.0f);
-    model = glm::scale(model, glm::vec3(0.3f));
-    objShader.setMat4("model", model);
+    glm::vec3 modelPositions[] = {
+        glm::vec3(0.0f, 0.0f, 0.0f),    glm::vec3(2.0f, 5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3(2.4f, -0.4f, -3.5f),  glm::vec3(-1.7f, 3.0f, -7.5f),
+        glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
+        glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f),
+    };
+    for (int i = 0; i < sizeof(modelPositions) / sizeof(glm::vec3); i++) {
+      // Матрица модели
+      model = glm::mat4(1.0f);
+      model = glm::translate(model, modelPositions[i]);
+      model = glm::rotate(model,
+                          glm::radians(20.f * (float)(i + 1) * (float)gameTime *
+                                       (float)(pow(-1, i))),
+                          glm::vec3(1.f, 0.3f, 0.5f));
+      model = glm::scale(model, glm::vec3(0.3f));
+      objShader.setMat4("model", model);
 
-    // Применение матрицы нормали
-    objShader.setMat3("normalMatrix", glm::transpose(glm::inverse(model)));
+      // Применение матрицы нормали
+      objShader.setMat3("normalMatrix", glm::transpose(glm::inverse(model)));
 
-    // Отрисовка объектов
-    ourModel.Draw(objShader);
+      // Отрисовка объектов
+      ourModel.Draw(objShader);
+    }
 
     // Окно ImGui
     // ----------
@@ -504,7 +518,8 @@ int main() {
       /* Секция с игровым временем итд */
       ImGui::Text("Game Time: %Lf", gameTime);
       ImGui::SameLine();
-      ImGui::Text("Time scale: %Lf", timeScale);
+      // ImGui::Text("Time scale: %Lf", timeScale);
+      ImGui::InputDouble("Time scale", &timeScale, timeScaleMin, timeScaleMax);
 
       ImGui::End();
 
