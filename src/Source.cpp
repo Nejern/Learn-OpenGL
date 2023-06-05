@@ -1,19 +1,19 @@
 // GLAD
-#include <glad/gl.h>
+#include "glad/gl.h"
 // GLFW
 #include <GLFW/glfw3.h>
 // GLM
 #include <glm/glm.hpp>
 // imgui
-#include "../include/imgui/imgui_impl_glfw.h"
-#include "../include/imgui/imgui_impl_opengl3.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 // Остальные библиотеки
 #include <cmath>
 #include <iostream>
 // Остальные заголовочные файлы
-#include "../include/LearnOpenGL/Camera.h" // Класс камеры
-#include "../include/LearnOpenGL/Model.h"  // Класс модели
-#include "../include/LearnOpenGL/Shader.h" // Класс шейдера
+#include "LearnOpenGL/Camera.h" // Класс камеры
+#include "LearnOpenGL/Model.h"  // Класс модели
+#include "LearnOpenGL/Shader.h" // Класс шейдера
 
 // Прототипы функций колбэков
 // --------------------------
@@ -230,7 +230,7 @@ int main() {
 
   // Рюкзак
   // ------
-  Model ourModel((char *)"./resources/objects/backpack/backpack.obj");
+  Model ourModel((char *)"./resources/Objects/backpack/backpack.obj");
 
   // Буфер вершин для куба
   // ---------------------

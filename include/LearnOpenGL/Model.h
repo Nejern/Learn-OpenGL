@@ -2,7 +2,7 @@
 #define MODEL_H
 
 // GLAD
-#include <glad/gl.h>
+#include "glad/gl.h"
 
 // GLM
 #include <glm/glm.hpp>
