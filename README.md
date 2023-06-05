@@ -1,5 +1,14 @@
 # Learn OpenGL
 
+## Control
+
+- `W/A/S/D` - movement
+- `Mouse` - camera rotate
+- `Scroll` - zoom
+- `SPACE` - stop/resume time
+- `C` - open menu
+- `L` - polygon mode
+
 ## Compile
 
 1. Install libs
