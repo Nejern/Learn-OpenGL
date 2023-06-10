@@ -281,7 +281,8 @@ int main() {
   // Подготовка к рендерингу
   // -----------------------
   // Цвет очистки экрана
-  glClearColor(29.f / 255, 32.f / 255, 33.f / 255, 1.f);
+  glm::vec4 clearColor = glm::vec4(29.f / 255, 32.f / 255, 33.f / 255, 1.f);
+  glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
   // Включение теста глубины
   glEnable(GL_DEPTH_TEST);
 
@@ -468,6 +469,14 @@ int main() {
       ImGui::Begin("ImGui Window");
       /* Таб бар */
       if (ImGui::BeginTabBar("Light Bar", ImGuiTabBarFlags_None)) {
+        // Цвет окружения
+        if (ImGui::BeginTabItem("Background color")) {
+          if (ImGui::ColorEdit4("Color", &clearColor.x)) {
+            glClearColor(clearColor[0], clearColor[1], clearColor[2],
+                         clearColor[3]);
+          }
+          ImGui::EndTabItem();
+        }
         // Направленный свет
         if (ImGui::BeginTabItem("Direction light")) {
           if (ImGui::ColorEdit3("Light color", &dirColor.x)) {
