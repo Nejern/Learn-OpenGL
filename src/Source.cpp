@@ -41,15 +41,16 @@ void doMovement();
 // Проверка коэффициента времени
 void checkTimeScale();
 
-// Константы размера окна
+// Переменные размера окна
 // -----------------------
-const GLuint SCR_WIDTH = 1280, SCR_HEIGHT = 720;
+GLint SCR_WIDTH = 1280, SCR_HEIGHT = 720; // Размер окна
+bool fullscreen_mode = 0; // Флаг полноэкранного режима
 
 // Переменные камеры
 // -----------------
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f)); // Камера
-GLfloat lastX = SCR_WIDTH / 2.0f; // Последняя позиция мыши по оси X
-GLfloat lastY = SCR_HEIGHT / 2.0f; // Последняя позиция мыши по оси Y
+GLfloat lastX = (float)SCR_WIDTH / 2.0f; // Последняя позиция мыши по оси X
+GLfloat lastY = (float)SCR_HEIGHT / 2.0f; // Последняя позиция мыши по оси Y
 bool firstMouse = true; // Первое движение мыши
 bool inputFlag = 1;
 /* Управление камерой */
@@ -444,7 +445,8 @@ int main() {
         glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
         glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f),
     };
-    for (int i = 0; i < sizeof(modelPositions) / sizeof(glm::vec3); i++) {
+    for (unsigned long i = 0; i < sizeof(modelPositions) / sizeof(glm::vec3);
+         i++) {
       // Матрица модели
       model = glm::mat4(1.0f);
       model = glm::translate(model, modelPositions[i]);
@@ -569,7 +571,7 @@ int main() {
 // ---------------------------
 // Колбэк обработки ошибок
 void glfwErrorCallback(int error, const char *description) {
-  std::cerr << "Error: " << description << std::endl;
+  std::cerr << "ERROR " << error << ":\n" << description << std::endl;
 }
 
 // Колбэк обработки ввода
@@ -596,6 +598,24 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
     d_flag = 1;
   if (key == GLFW_KEY_D && action == GLFW_RELEASE)
     d_flag = 0;
+
+  // Полноэкранный режим
+  if (key == GLFW_KEY_F11 && action == GLFW_PRESS) {
+    if (fullscreen_mode) {
+      fullscreen_mode = 0;
+      SCR_WIDTH = 1280;
+      SCR_HEIGHT = 720;
+      glfwSetWindowMonitor(window, nullptr, 0, 0, SCR_WIDTH, SCR_HEIGHT, 60);
+    } else {
+      fullscreen_mode = 1;
+      SCR_WIDTH = 1920;
+      SCR_HEIGHT = 1080;
+      glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, SCR_WIDTH,
+                           SCR_HEIGHT, 60);
+    }
+    glfwSetWindowSize(window, SCR_WIDTH, SCR_HEIGHT);
+    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+  }
 
   // Игнорирование ввода
   if (key == GLFW_KEY_C && action == GLFW_PRESS) {

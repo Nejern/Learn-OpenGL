@@ -8,6 +8,7 @@
 - `SPACE` - stop/resume time
 - `C` - open menu
 - `L` - polygon mode
+- `F11` - fullscreen mode
 
 ## Compile
 
