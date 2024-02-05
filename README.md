@@ -2,11 +2,12 @@
 
 ## Control
 
+- `CTRL+ESC` - open menu
 - `W/A/S/D` - movement
 - `Mouse` - camera rotate
 - `Scroll` - zoom
 - `SPACE` - stop/resume time
-- `C` - open menu
+- `ESC` - open menu
 - `L` - polygon mode
 - `F11` - fullscreen mode
 

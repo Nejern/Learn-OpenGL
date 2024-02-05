@@ -579,8 +579,10 @@ bool l_flag = 0; // Флаг нажатия кнопки L
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods) {
   // Закрытие окна
-  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+  if (key == GLFW_KEY_ESCAPE && mods == GLFW_MOD_CONTROL &&
+      action == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
+
   // Управление камерой
   if (key == GLFW_KEY_W && action == GLFW_PRESS)
     w_flag = 1;
@@ -618,7 +620,8 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
   }
 
   // Игнорирование ввода
-  if (key == GLFW_KEY_C && action == GLFW_PRESS) {
+  if (key == GLFW_KEY_ESCAPE && mods != GLFW_MOD_CONTROL &&
+      action == GLFW_PRESS) {
     if (inputFlag) {
       inputFlag = 0;
       firstMouse = 1;
