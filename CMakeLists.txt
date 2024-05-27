@@ -21,6 +21,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Проверка зависимостей
 find_package(glfw3 REQUIRED)
+find_package(OpenGL REQUIRED)
 
 # Настройки директорий
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -40,4 +41,5 @@ file(GLOB SOURCES
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 # Линковка библиотек
-target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDES})
+target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
+target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
