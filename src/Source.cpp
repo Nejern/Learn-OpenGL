@@ -95,7 +95,12 @@ struct PointLight {
 int main() {
   // Инициализация и конфигурация GLFW
   // ---------------------------------
-  glfwInit();
+  // Функция обработки ошибок GLFW
+  glfwSetErrorCallback(glfwErrorCallback);
+
+  // Инициализация
+  if (!glfwInit())
+    return -1;
 
   /* Настройка GLFW */
   // Мажорная и минорная версии OpenGL
@@ -111,10 +116,10 @@ int main() {
   // Создание окна
   // -------------
   GLFWwindow *window =
-      glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", nullptr, nullptr);
+      glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
   // Проверка на успешное создание окна
-  if (window == nullptr) {
-    std::cout << "Failed to create GLFW window" << std::endl;
+  if (!window) {
+    std::cerr << "Failed to create GLFW window" << std::endl;
     glfwTerminate();
     return -1;
   }
@@ -123,8 +128,6 @@ int main() {
 
   // Регистрация функций обратного вызова
   // -----------------------------------
-  // Функция обработки ошибок GLFW
-  glfwSetErrorCallback(glfwErrorCallback);
   // Функция обработки изменения размеров окна
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
   // Функция обработки нажатия клавиш
